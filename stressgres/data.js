@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787613498761,
+  "lastUpdate": 1787614131833,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -258630,6 +258630,54 @@ window.BENCHMARK_DATA = {
             "value": 24.240402946340442,
             "unit": "median tps",
             "extra": "avg tps: 38.542371708402555, max tps: 443.1333468416866, count: 59291"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd12adbf0bd58ef2e4307c19d15c55546a61f80c",
+          "message": "feat: Add support for aggregate score joins. (#6024)\n\n## What\n\nAdds support for:\n* Aggregate score joins (without any Block-Max WAND dynamic filter\ncalculation, as described in #5301)\n* Calculation of scores for disjunctive joins under predicate tagging\n\n## Why\n\nAs described in #5961, we have been remiss in not tracking disjunctive\njoins in our benchmarks. But before tracking them, we need them to be\nfully supported, with accurate scores.\n\nThis change fills out support for ordering by a sum of scores, and adds\nsupport for scoring disjunctive joins.\n\n## How\n\n* Added expression matching for simple \"sum of scores\" patterns, and\nimproved planner warnings for other cases.\n* Fixed planning of `SegmentedTopK` to ensure that it is never\naccidentally pushed down through a join, or through a node with a schema\nthat it does not recognize.\n* Moved to lazily tagging and scoring blocks of rows in `BatchScanner`\nto avoid needing segment-sized score arrays.\n\n## Tests\n\nOverhauled `joinscan_sortby_score.sql` to use comprehensible per-table\nscores, and then validate that sums across those scores make sense under\nconjunction and disjunction.\n\nAdditionally, `join_distinct_expr.out` shows many changes due to the fix\nin `SegmentedTopK` planning.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-24T15:14:35-07:00",
+          "tree_id": "773179c2a83f9dbb9d24c2947f379b9f27648312",
+          "url": "https://github.com/paradedb/paradedb/commit/cd12adbf0bd58ef2e4307c19d15c55546a61f80c"
+        },
+        "date": 1787614128427,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Custom Scan - Subscriber - tps",
+            "value": 21.514929815626264,
+            "unit": "median tps",
+            "extra": "avg tps: 32.690553789325925, max tps: 206.26794660052892, count: 59284"
+          },
+          {
+            "name": "Index Only Scan - Subscriber - tps",
+            "value": 24.855687930871884,
+            "unit": "median tps",
+            "extra": "avg tps: 41.87096704151902, max tps: 527.2519391667257, count: 59284"
+          },
+          {
+            "name": "Parallel Custom Scan - Subscriber - tps",
+            "value": 21.57317374140295,
+            "unit": "median tps",
+            "extra": "avg tps: 32.75296953987134, max tps: 204.40861915977374, count: 59284"
+          },
+          {
+            "name": "Top K - Subscriber - tps",
+            "value": 22.02100481141521,
+            "unit": "median tps",
+            "extra": "avg tps: 36.3229765999872, max tps: 419.8336390122067, count: 59284"
           }
         ]
       }
