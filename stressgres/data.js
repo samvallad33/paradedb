@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787614131833,
+  "lastUpdate": 1787614139706,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -287998,6 +287998,162 @@ window.BENCHMARK_DATA = {
             "value": 17.67578125,
             "unit": "median mem",
             "extra": "avg mem: 17.672670203951697, max mem: 17.78515625, count: 59291"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd12adbf0bd58ef2e4307c19d15c55546a61f80c",
+          "message": "feat: Add support for aggregate score joins. (#6024)\n\n## What\n\nAdds support for:\n* Aggregate score joins (without any Block-Max WAND dynamic filter\ncalculation, as described in #5301)\n* Calculation of scores for disjunctive joins under predicate tagging\n\n## Why\n\nAs described in #5961, we have been remiss in not tracking disjunctive\njoins in our benchmarks. But before tracking them, we need them to be\nfully supported, with accurate scores.\n\nThis change fills out support for ordering by a sum of scores, and adds\nsupport for scoring disjunctive joins.\n\n## How\n\n* Added expression matching for simple \"sum of scores\" patterns, and\nimproved planner warnings for other cases.\n* Fixed planning of `SegmentedTopK` to ensure that it is never\naccidentally pushed down through a join, or through a node with a schema\nthat it does not recognize.\n* Moved to lazily tagging and scoring blocks of rows in `BatchScanner`\nto avoid needing segment-sized score arrays.\n\n## Tests\n\nOverhauled `joinscan_sortby_score.sql` to use comprehensible per-table\nscores, and then validate that sums across those scores make sense under\nconjunction and disjunction.\n\nAdditionally, `join_distinct_expr.out` shows many changes due to the fix\nin `SegmentedTopK` planning.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-24T15:14:35-07:00",
+          "tree_id": "773179c2a83f9dbb9d24c2947f379b9f27648312",
+          "url": "https://github.com/paradedb/paradedb/commit/cd12adbf0bd58ef2e4307c19d15c55546a61f80c"
+        },
+        "date": 1787614135598,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Custom Scan - Subscriber - cpu",
+            "value": 23.267086,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.132291697512862, max cpu: 42.33219, count: 59284"
+          },
+          {
+            "name": "Custom Scan - Subscriber - mem",
+            "value": 44.77734375,
+            "unit": "median mem",
+            "extra": "avg mem: 44.71361864868683, max mem: 60.40625, count: 59284"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 0,
+            "unit": "median cpu",
+            "extra": "avg cpu: 1.8243064417508643, max cpu: 4.6669908, count: 59284"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.18359375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.154167532028033, max mem: 17.18359375, count: 59284"
+          },
+          {
+            "name": "Index Only Scan - Subscriber - cpu",
+            "value": 23.244553,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.92961244299429, max cpu: 37.573387, count: 59284"
+          },
+          {
+            "name": "Index Only Scan - Subscriber - mem",
+            "value": 44.404296875,
+            "unit": "median mem",
+            "extra": "avg mem: 43.72119598563693, max mem: 55.64453125, count: 59284"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.6647234,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.7205964535739495, max cpu: 9.425626, count: 59284"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.46875,
+            "unit": "median mem",
+            "extra": "avg mem: 21.45401999011116, max mem: 21.48046875, count: 59284"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 9080,
+            "unit": "median pages",
+            "extra": "avg pages: 8130.145266851089, max pages: 14173.0, count: 59284"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 70.9375,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 63.516760292616894, max relation_size:MB: 110.7265625, count: 59284"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 56,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 54.26862222522097, max segment_count: 88.0, count: 59284"
+          },
+          {
+            "name": "Insert value - Publisher - cpu",
+            "value": 4.6943765,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.2149611459715204, max cpu: 4.7105007, count: 59284"
+          },
+          {
+            "name": "Insert value - Publisher - mem",
+            "value": 17.21875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.191448551674988, max mem: 17.21875, count: 59284"
+          },
+          {
+            "name": "Parallel Custom Scan - Subscriber - cpu",
+            "value": 23.27837,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.119183489684314, max cpu: 42.27006, count: 59284"
+          },
+          {
+            "name": "Parallel Custom Scan - Subscriber - mem",
+            "value": 44.83203125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.74476539833682, max mem: 60.73828125, count: 59284"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 96.19519805908203,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 197.09407445749173, max replication_lag:MB: 944.2363815307617, count: 59284"
+          },
+          {
+            "name": "Top K - Subscriber - cpu",
+            "value": 23.27837,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.275001347172825, max cpu: 37.628616, count: 59284"
+          },
+          {
+            "name": "Top K - Subscriber - mem",
+            "value": 45.51953125,
+            "unit": "median mem",
+            "extra": "avg mem: 45.47295361364365, max mem: 58.953125, count: 59284"
+          },
+          {
+            "name": "Update 1..50 - Publisher - cpu",
+            "value": 9.2708845,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.955796440596714, max cpu: 32.78049, count: 59284"
+          },
+          {
+            "name": "Update 1..50 - Publisher - mem",
+            "value": 17.6015625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.488351555120268, max mem: 17.71875, count: 59284"
+          },
+          {
+            "name": "Update 51..100 - Publisher - cpu",
+            "value": 9.266409,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.714860773754, max cpu: 32.82853, count: 59284"
+          },
+          {
+            "name": "Update 51..100 - Publisher - mem",
+            "value": 17.6171875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.487651930221475, max mem: 17.703125, count: 59284"
           }
         ]
       }
