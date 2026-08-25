@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787676350699,
+  "lastUpdate": 1787676375305,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -290446,6 +290446,98 @@ window.BENCHMARK_DATA = {
             "value": 35.12617123170056,
             "unit": "median tps",
             "extra": "avg tps: 55.4399325297398, max tps: 537.8126162582109, count: 58761"
+          }
+        ]
+      }
+    ],
+    "pg_search partitioned-table.toml Performance - Other Metrics": [
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0083a5846437586684ef5c5a8cc0898162610f6",
+          "message": "test(stressgres): expand planner and topology coverage (#5889)\n\n## What\n\nOur Stressgres workloads were extremely outdated. I discovered this\nwhile adding \"plan shape assertions\" to them, which was recommended by\nCarl Sverre from Antithesis. They existed from pre-AggregateScan and\npre-JoinScan era, and even for the BaseScan they only covered some\ncases. This PR revamps them to be more up-to-date and have wider\ncoverage, which notably caught an MPP bug that had previously slipped\nthrough.\n\nThe performance alerts can be ignored for this PR, since this revamps\nthe suites altogether and previous values are now meaningless.\n\nCloses (partially) #5500. I commented future area of work on that issue,\nwhich is why I'm not closing it fully. More context:\n\n## Planner coverage\n\nThe single-node planner suite now asserts coverage for:\n\n- ParadeDB Base Scan, including normal, parallel, columnar, unordered\nTop K, key-ordered Top K, and score-ordered Top K paths\n- Aggregate Scan, including plain counts, grouped aggregates, and\n`pdb.agg`\n- JoinScan\n- PostgreSQL fallbacks, including Index Scan, Index Only Scan, Seq Scan,\nand Sort over a ParadeDB Base Scan\n\nAssertions are attached to the executor state that actually represents\neach optimized path, including Top K coverage under `TopKScanExecState`.\n\n## Suites and topologies\n\n- Renames suites around the behavior they validate:\n  - `single-node-planner-paths.toml`\n  - `bulk-update-merge-pressure.toml`\n  - `logical-replication-mixed-workload.toml`\n  - `logical-replication-fsm-merge-race.toml`\n- Adds `partitioned-table.toml` for partition pruning, parent/child scan\nplanning, aggregates, joins, and writes\n- Adds `logical-replication-multi-subscriber.toml` for one publisher\nwith two ParadeDB subscribers under mixed reads and writes\n- Narrows the FSM merge-race workload to paths relevant to that race\n- Removes the unused `vanilla-postgres.toml` suite and its references\n- Adds Antithesis entrypoints for every bundled suite, including\nindependent databases for the two logical-replication subscribers\n\nPhysical replication remains an enterprise-only topology:\n`paradedb-enterprise` already exercises its physical-replication and\ncombined physical/logical-replication suites in CI and Antithesis.\n\n## Tests\n\n`benchmark-stressgres` and `antithesis-stressgres` both pass error-free.",
+          "timestamp": "2026-08-25T12:18:01-04:00",
+          "tree_id": "c9794ea2e72745d63a40423e253a4bfc016ddf50",
+          "url": "https://github.com/paradedb/paradedb/commit/e0083a5846437586684ef5c5a8cc0898162610f6"
+        },
+        "date": 1787676357313,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Partition Index Sizes - Primary - partition_index_size:MB",
+            "value": 59.546875,
+            "unit": "median partition_index_size:MB",
+            "extra": "avg partition_index_size:MB: 57.575259844965196, max partition_index_size:MB: 94.2109375, count: 58761"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - cpu",
+            "value": 23.334953,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.515202886344568, max cpu: 33.333336, count: 58761"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - mem",
+            "value": 45.921875,
+            "unit": "median mem",
+            "extra": "avg mem: 45.72457729988853, max mem: 52.8359375, count: 58761"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 23.065286208517616, max cpu: 37.72102, count: 58761"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - mem",
+            "value": 55.5234375,
+            "unit": "median mem",
+            "extra": "avg mem: 56.06654857707493, max mem: 68.99609375, count: 58761"
+          },
+          {
+            "name": "Partitioned Writes - Primary - cpu",
+            "value": 9.476802,
+            "unit": "median cpu",
+            "extra": "avg cpu: 11.646362134858267, max cpu: 33.168808, count: 58761"
+          },
+          {
+            "name": "Partitioned Writes - Primary - mem",
+            "value": 52.48046875,
+            "unit": "median mem",
+            "extra": "avg mem: 50.49623714070557, max mem: 67.8515625, count: 58761"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 23.020020085194712, max cpu: 42.13887, count: 58761"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - mem",
+            "value": 52.8984375,
+            "unit": "median mem",
+            "extra": "avg mem: 52.51943000565851, max mem: 61.51953125, count: 58761"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - cpu",
+            "value": 23.323614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.409392639070788, max cpu: 33.136093, count: 58761"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - mem",
+            "value": 44.70703125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.52020459467163, max mem: 51.0625, count: 58761"
           }
         ]
       }
