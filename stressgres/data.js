@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787617674521,
+  "lastUpdate": 1787618292132,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -151994,6 +151994,60 @@ window.BENCHMARK_DATA = {
             "value": 22.45170137290904,
             "unit": "median tps",
             "extra": "avg tps: 22.464806750904245, max tps: 35.197549236883695, count: 59400"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4696391e4f03afde8eae256cd320a5843819fdc2",
+          "message": "chore: Prepare `0.25.4`. (#6056)\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-24T16:48:04-07:00",
+          "tree_id": "798879ff9d41f74fb2638d38af82b4187c792c45",
+          "url": "https://github.com/paradedb/paradedb/commit/4696391e4f03afde8eae256cd320a5843819fdc2"
+        },
+        "date": 1787618288878,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Custom scan - Primary - tps",
+            "value": 76.10997799686126,
+            "unit": "median tps",
+            "extra": "avg tps: 75.74108736680589, max tps: 78.92695985408528, count: 59374"
+          },
+          {
+            "name": "Delete value - Primary - tps",
+            "value": 513.9587951340624,
+            "unit": "median tps",
+            "extra": "avg tps: 552.8025088705192, max tps: 6093.459364950776, count: 59374"
+          },
+          {
+            "name": "Insert value - Primary - tps",
+            "value": 831.9925356087792,
+            "unit": "median tps",
+            "extra": "avg tps: 798.3414100527662, max tps: 933.6860704356312, count: 59374"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 225.91340917284592,
+            "unit": "median tps",
+            "extra": "avg tps: 302.37082282233814, max tps: 1580.6882594542558, count: 118748"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 22.351448719679368,
+            "unit": "median tps",
+            "extra": "avg tps: 22.32147565673834, max tps: 33.95204714717075, count: 59374"
           }
         ]
       }
