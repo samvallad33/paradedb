@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787700357440,
+  "lastUpdate": 1787700371039,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -106242,6 +106242,54 @@ window.BENCHMARK_DATA = {
             "value": 1200.7899897655523,
             "unit": "median tps",
             "extra": "avg tps: 1096.7239561283363, max tps: 1749.0873210076481, count: 59414"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mithun.cy@gmail.com",
+            "name": "Mithun Chicklore Yogendra",
+            "username": "mithuncy"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd124da0cbd34938fdf65a773cdc0081c283cf67",
+          "message": "perf: Initialize MPP search readers only where they execute (#6026)\n\n# Ticket(s) Closed\n\n- Related to #5999\n\n## What\n\nThe MPP leader opened every source index twice:\n\n1. At query begin, to capture and pin the segment manifest used to\npopulate the DSM.\n2. During DataFusion planning, to build the leader's\n`SearchIndexReader`.\n\nIt also opened fast fields for every segment when constructing\n`FFHelper`, including mutable segments the process never scanned.\n\nThis PR changes that:\n\n- `SearchIndexManifest` retains the components created during capture.\nThe leader builds its reader from those components using\n`SearchIndexReader::from_manifest`, avoiding the second index open while\npreserving the same searcher and segment view.\n- Tokenizers are registered into the managers already shared with the\ncaptured searcher.\n- `FFHelper` retains one `Searcher` and opens a segment's fast fields on\nfirst access. Mutable segments are materialized only in processes that\nactually scan them.\n- JoinScan injects manifests through the logical-plan codec.\nAggregateScan injects them directly into its providers. Serial scans and\nworker reader construction are unchanged.\n\n## Why\n\nThe second leader open became redundant after begin-time manifest\ncapture was added in #4311. Eager fast-field initialization also made\nevery process pay for segments assigned to other workers.\n\nReusing the manifest removes the redundant leader open. Lazy fast fields\navoid opening or materializing segments the process never reads.\n\n## Tests\n\n- `from_manifest_reuses_the_captured_open`: verifies zero additional\nindex opens, the same segment view, and tokenizer registration.\n- `decoded_provider_reuses_the_injected_manifest`: verifies manifest\nreuse through codec deserialization and provider planning.\n- `ffhelper_opens_only_the_segment_it_reads`: verifies only the accessed\nsegment opens and an unaccessed mutable segment remains cold.\n- `mpp_deferred_open_leader`: verifies leader-hosted leaves through\nJoinScan and AggregateScan, result parity, and continued MPP launch.\n- Local full regress and MPP integration results matched `main`.\n\n## Benchmark\n\nSame-session A/B against `12ddb8a9e`: release builds, PostgreSQL 17.7,\nApple Silicon, four MPP workers, one client, 20 warmups followed by five\nbatches of 100 transactions. Result hashes matched between base and\nhead.\n\n| Layout | Query | Base | Head | Change |\n| --- | --- | ---: | ---: | ---: |\n| Mixed: 5/21 segments | no text filter | 47.211 ms | 23.273 ms | −50.7%\n|\n| Mixed | `dragon` | 58.703 ms | 34.433 ms | −41.3% |\n| Mixed | `love` | 59.169 ms | 34.521 ms | −41.7% |\n| 128 immutable | all three | 13.99 / 16.48 / 16.83 ms | 13.6–14.6 /\n16.9 / 17.5 ms | within noise |\n\nThe mixed-layout improvement comes from avoiding mutable-segment\nmaterialization in processes that never scan those segments.\nImmutable-only layouts remain within noise.",
+          "timestamp": "2026-08-25T15:48:45-07:00",
+          "tree_id": "6319144c55e93583efe6b2261450a4e2f12e7dfc",
+          "url": "https://github.com/paradedb/paradedb/commit/cd124da0cbd34938fdf65a773cdc0081c283cf67"
+        },
+        "date": 1787700353036,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 1364.2739023441648,
+            "unit": "median tps",
+            "extra": "avg tps: 1380.04363925441, max tps: 1471.0711465588265, count: 59423"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - tps",
+            "value": 2.74363334559151,
+            "unit": "median tps",
+            "extra": "avg tps: 3.0226178256443568, max tps: 5.155974333415401, count: 59423"
+          },
+          {
+            "name": "Single Insert - Primary - tps",
+            "value": 708.2559493843011,
+            "unit": "median tps",
+            "extra": "avg tps: 670.4792359431922, max tps: 1782.4231289364118, count: 59423"
+          },
+          {
+            "name": "Single Update - Primary - tps",
+            "value": 2184.103826250711,
+            "unit": "median tps",
+            "extra": "avg tps: 2134.869618745618, max tps: 2347.006695474963, count: 59423"
           }
         ]
       }
