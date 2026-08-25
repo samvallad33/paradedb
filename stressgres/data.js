@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787697370468,
+  "lastUpdate": 1787697378194,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -292218,6 +292218,90 @@ window.BENCHMARK_DATA = {
             "value": 569.495981359553,
             "unit": "median tps",
             "extra": "avg tps: 566.7709009593095, max tps: 606.4395443767205, count: 55296"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787697374770,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - tps",
+            "value": 192.6363315529498,
+            "unit": "median tps",
+            "extra": "avg tps: 196.9346960761892, max tps: 221.6955080625251, count: 55408"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - tps",
+            "value": 195.4519218327579,
+            "unit": "median tps",
+            "extra": "avg tps: 199.69142589639034, max tps: 233.5920217740722, count: 55408"
+          },
+          {
+            "name": "JoinScan - Subscriber - tps",
+            "value": 163.2025929672779,
+            "unit": "median tps",
+            "extra": "avg tps: 166.54902589885427, max tps: 199.59783155123495, count: 55408"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - tps",
+            "value": 440.89455504354646,
+            "unit": "median tps",
+            "extra": "avg tps: 462.1687672736393, max tps: 663.3113849913291, count: 55408"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - tps",
+            "value": 324.17530208937876,
+            "unit": "median tps",
+            "extra": "avg tps: 334.6060072457173, max tps: 433.3282041955021, count: 55408"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - tps",
+            "value": 14.817981390822412,
+            "unit": "median tps",
+            "extra": "avg tps: 14.818667133045405, max tps: 16.243657117885352, count: 55408"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - tps",
+            "value": 615.1199624628166,
+            "unit": "median tps",
+            "extra": "avg tps: 627.8988879119032, max tps: 775.36142218434, count: 55408"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - tps",
+            "value": 663.9160371292883,
+            "unit": "median tps",
+            "extra": "avg tps: 672.7042757775597, max tps: 766.0895939076229, count: 55408"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - tps",
+            "value": 259.1812914495075,
+            "unit": "median tps",
+            "extra": "avg tps: 265.67996555507415, max tps: 325.07376364475084, count: 55408"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - tps",
+            "value": 570.6443375261458,
+            "unit": "median tps",
+            "extra": "avg tps: 578.2166930017419, max tps: 624.4200285070449, count: 55408"
           }
         ]
       }
