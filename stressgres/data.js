@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787684775452,
+  "lastUpdate": 1787696301926,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -106194,6 +106194,54 @@ window.BENCHMARK_DATA = {
             "value": 2160.8211682803685,
             "unit": "median tps",
             "extra": "avg tps: 2124.521504030969, max tps: 2340.345660218424, count: 59415"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787696298485,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 1389.549647751045,
+            "unit": "median tps",
+            "extra": "avg tps: 1397.688212366206, max tps: 1496.3498284448738, count: 59414"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - tps",
+            "value": 2.7552427274315083,
+            "unit": "median tps",
+            "extra": "avg tps: 3.0389808094260804, max tps: 5.141827768036199, count: 59414"
+          },
+          {
+            "name": "Single Insert - Primary - tps",
+            "value": 1873.7164846339529,
+            "unit": "median tps",
+            "extra": "avg tps: 1866.1494878742917, max tps: 1901.4823098144977, count: 59414"
+          },
+          {
+            "name": "Single Update - Primary - tps",
+            "value": 1200.7899897655523,
+            "unit": "median tps",
+            "extra": "avg tps: 1096.7239561283363, max tps: 1749.0873210076481, count: 59414"
           }
         ]
       }
