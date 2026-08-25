@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787616356465,
+  "lastUpdate": 1787616365016,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -62982,6 +62982,150 @@ window.BENCHMARK_DATA = {
             "value": 27.01953125,
             "unit": "median mem",
             "extra": "avg mem: 26.973437486839003, max mem: 27.6484375, count: 59361"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4696391e4f03afde8eae256cd320a5843819fdc2",
+          "message": "chore: Prepare `0.25.4`. (#6056)\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-24T16:48:04-07:00",
+          "tree_id": "798879ff9d41f74fb2638d38af82b4187c792c45",
+          "url": "https://github.com/paradedb/paradedb/commit/4696391e4f03afde8eae256cd320a5843819fdc2"
+        },
+        "date": 1787616361166,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Custom Scan - Primary - cpu",
+            "value": 9.302325,
+            "unit": "median cpu",
+            "extra": "avg cpu: 7.535746581658848, max cpu: 24.279211, count: 59359"
+          },
+          {
+            "name": "Aggregate Custom Scan - Primary - mem",
+            "value": 40.3515625,
+            "unit": "median mem",
+            "extra": "avg mem: 40.34219977962483, max mem: 40.671875, count: 59359"
+          },
+          {
+            "name": "Columnar Scan - Primary - cpu",
+            "value": 9.288824,
+            "unit": "median cpu",
+            "extra": "avg cpu: 7.463071033379867, max cpu: 28.070175, count: 59359"
+          },
+          {
+            "name": "Columnar Scan - Primary - mem",
+            "value": 40.1796875,
+            "unit": "median mem",
+            "extra": "avg mem: 40.174505248256374, max mem: 40.51171875, count: 59359"
+          },
+          {
+            "name": "Delete values - Primary - cpu",
+            "value": 4.678363,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.62072729157277, max cpu: 4.8096194, count: 59359"
+          },
+          {
+            "name": "Delete values - Primary - mem",
+            "value": 20.39453125,
+            "unit": "median mem",
+            "extra": "avg mem: 20.384675172993987, max mem: 20.39453125, count: 59359"
+          },
+          {
+            "name": "Index Scan - Primary - cpu",
+            "value": 4.685212,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.2975858331203405, max cpu: 4.7197638, count: 59359"
+          },
+          {
+            "name": "Index Scan - Primary - mem",
+            "value": 38.6171875,
+            "unit": "median mem",
+            "extra": "avg mem: 38.52594442555046, max mem: 38.87890625, count: 59359"
+          },
+          {
+            "name": "Insert value - Primary - cpu",
+            "value": 4.6806436,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.699709081868606, max cpu: 9.421001, count: 118718"
+          },
+          {
+            "name": "Insert value - Primary - mem",
+            "value": 36.11328125,
+            "unit": "median mem",
+            "extra": "avg mem: 33.79660107750088, max mem: 36.6640625, count: 118718"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 1798,
+            "unit": "median block_count",
+            "extra": "avg block_count: 1802.9172661264508, max block_count: 3219.0, count: 59359"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 12,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 10.675954783604846, max segment_count: 23.0, count: 59359"
+          },
+          {
+            "name": "Normal Scan - Primary - cpu",
+            "value": 4.6875,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.493592671243871, max cpu: 24.527338, count: 59359"
+          },
+          {
+            "name": "Normal Scan - Primary - mem",
+            "value": 39.40625,
+            "unit": "median mem",
+            "extra": "avg mem: 39.38839729442881, max mem: 39.6875, count: 59359"
+          },
+          {
+            "name": "Score-ordered TopK - Primary - cpu",
+            "value": 4.685212,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.456582190608997, max cpu: 24.527338, count: 59359"
+          },
+          {
+            "name": "Score-ordered TopK - Primary - mem",
+            "value": 40.30859375,
+            "unit": "median mem",
+            "extra": "avg mem: 40.30242886504153, max mem: 40.55859375, count: 59359"
+          },
+          {
+            "name": "Update random values - Primary - cpu",
+            "value": 4.6829267,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.522846859331007, max cpu: 4.78803, count: 59359"
+          },
+          {
+            "name": "Update random values - Primary - mem",
+            "value": 28.83203125,
+            "unit": "median mem",
+            "extra": "avg mem: 28.376121091578362, max mem: 28.90625, count: 59359"
+          },
+          {
+            "name": "Vacuum - Primary - cpu",
+            "value": 4.685212,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.061262910121499, max cpu: 4.712813, count: 59359"
+          },
+          {
+            "name": "Vacuum - Primary - mem",
+            "value": 26.9765625,
+            "unit": "median mem",
+            "extra": "avg mem: 26.30048037944962, max mem: 27.6015625, count: 59359"
           }
         ]
       }
