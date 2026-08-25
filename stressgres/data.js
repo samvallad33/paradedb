@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787675887227,
+  "lastUpdate": 1787675899049,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -289266,6 +289266,164 @@ window.BENCHMARK_DATA = {
             "value": 22.84280220041732,
             "unit": "median tps",
             "extra": "avg tps: 37.26540858483121, max tps: 424.4217017926305, count: 59273"
+          }
+        ]
+      }
+    ],
+    "pg_search logical-replication-fsm-merge-race.toml Performance - Other Metrics": [
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0083a5846437586684ef5c5a8cc0898162610f6",
+          "message": "test(stressgres): expand planner and topology coverage (#5889)\n\n## What\n\nOur Stressgres workloads were extremely outdated. I discovered this\nwhile adding \"plan shape assertions\" to them, which was recommended by\nCarl Sverre from Antithesis. They existed from pre-AggregateScan and\npre-JoinScan era, and even for the BaseScan they only covered some\ncases. This PR revamps them to be more up-to-date and have wider\ncoverage, which notably caught an MPP bug that had previously slipped\nthrough.\n\nThe performance alerts can be ignored for this PR, since this revamps\nthe suites altogether and previous values are now meaningless.\n\nCloses (partially) #5500. I commented future area of work on that issue,\nwhich is why I'm not closing it fully. More context:\n\n## Planner coverage\n\nThe single-node planner suite now asserts coverage for:\n\n- ParadeDB Base Scan, including normal, parallel, columnar, unordered\nTop K, key-ordered Top K, and score-ordered Top K paths\n- Aggregate Scan, including plain counts, grouped aggregates, and\n`pdb.agg`\n- JoinScan\n- PostgreSQL fallbacks, including Index Scan, Index Only Scan, Seq Scan,\nand Sort over a ParadeDB Base Scan\n\nAssertions are attached to the executor state that actually represents\neach optimized path, including Top K coverage under `TopKScanExecState`.\n\n## Suites and topologies\n\n- Renames suites around the behavior they validate:\n  - `single-node-planner-paths.toml`\n  - `bulk-update-merge-pressure.toml`\n  - `logical-replication-mixed-workload.toml`\n  - `logical-replication-fsm-merge-race.toml`\n- Adds `partitioned-table.toml` for partition pruning, parent/child scan\nplanning, aggregates, joins, and writes\n- Adds `logical-replication-multi-subscriber.toml` for one publisher\nwith two ParadeDB subscribers under mixed reads and writes\n- Narrows the FSM merge-race workload to paths relevant to that race\n- Removes the unused `vanilla-postgres.toml` suite and its references\n- Adds Antithesis entrypoints for every bundled suite, including\nindependent databases for the two logical-replication subscribers\n\nPhysical replication remains an enterprise-only topology:\n`paradedb-enterprise` already exercises its physical-replication and\ncombined physical/logical-replication suites in CI and Antithesis.\n\n## Tests\n\n`benchmark-stressgres` and `antithesis-stressgres` both pass error-free.",
+          "timestamp": "2026-08-25T12:18:01-04:00",
+          "tree_id": "c9794ea2e72745d63a40423e253a4bfc016ddf50",
+          "url": "https://github.com/paradedb/paradedb/commit/e0083a5846437586684ef5c5a8cc0898162610f6"
+        },
+        "date": 1787675892118,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - cpu",
+            "value": 23.222061,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.947695621168172, max cpu: 41.73913, count: 59273"
+          },
+          {
+            "name": "Aggregate Scan - Subscriber - mem",
+            "value": 48.74609375,
+            "unit": "median mem",
+            "extra": "avg mem: 48.6787017935021, max mem: 62.62109375, count: 59273"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 4.660194,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.5696105837076173, max cpu: 4.7151275, count: 59273"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.1953125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.155346474153493, max mem: 17.1953125, count: 59273"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.6647234,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.722662825717948, max cpu: 9.421001, count: 59273"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.50390625,
+            "unit": "median mem",
+            "extra": "avg mem: 21.479429135103672, max mem: 21.51171875, count: 59273"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 9670,
+            "unit": "median pages",
+            "extra": "avg pages: 8154.429065510435, max pages: 12871.0, count: 59273"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 75.546875,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 63.70648195109915, max relation_size:MB: 100.5546875, count: 59273"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 57,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 52.0562482074469, max segment_count: 86.0, count: 59273"
+          },
+          {
+            "name": "Insert value - Publisher - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.354120583402059, max cpu: 4.717445, count: 59273"
+          },
+          {
+            "name": "Insert value - Publisher - mem",
+            "value": 17.23046875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.222037094250332, max mem: 17.23046875, count: 59273"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - cpu",
+            "value": 23.233301,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.08015341308856, max cpu: 41.73913, count: 59273"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - mem",
+            "value": 48.1796875,
+            "unit": "median mem",
+            "extra": "avg mem: 48.13288525656707, max mem: 60.9140625, count: 59273"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - cpu",
+            "value": 23.210833,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.80893972186995, max cpu: 46.376812, count: 59273"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - mem",
+            "value": 46.578125,
+            "unit": "median mem",
+            "extra": "avg mem: 46.17263353993386, max mem: 56.9140625, count: 59273"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 101.77500915527344,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 199.95870519808642, max replication_lag:MB: 929.3721771240234, count: 59273"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - cpu",
+            "value": 23.233301,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.108761123962356, max cpu: 46.376812, count: 59273"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - mem",
+            "value": 48.56640625,
+            "unit": "median mem",
+            "extra": "avg mem: 48.41507245868692, max mem: 63.9296875, count: 59273"
+          },
+          {
+            "name": "Update 1..50 - Publisher - cpu",
+            "value": 9.261939,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.932010902615305, max cpu: 32.71665, count: 59273"
+          },
+          {
+            "name": "Update 1..50 - Publisher - mem",
+            "value": 17.64453125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.540181461732153, max mem: 17.765625, count: 59273"
+          },
+          {
+            "name": "Update 51..100 - Publisher - cpu",
+            "value": 9.266409,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.923395289560554, max cpu: 32.542374, count: 59273"
+          },
+          {
+            "name": "Update 51..100 - Publisher - mem",
+            "value": 17.61328125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.525115448328076, max mem: 17.7421875, count: 59273"
           }
         ]
       }
