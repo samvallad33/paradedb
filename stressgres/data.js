@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787697443968,
+  "lastUpdate": 1787697452561,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -295138,6 +295138,108 @@ window.BENCHMARK_DATA = {
             "value": 46.83203125,
             "unit": "median mem",
             "extra": "avg mem: 44.859049655005066, max mem: 56.91015625, count: 59240"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787697416407,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Replicated Deletes - Publisher - cpu",
+            "value": 4.6943765,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.156956189832097, max cpu: 4.717445, count: 59230"
+          },
+          {
+            "name": "Replicated Deletes - Publisher - mem",
+            "value": 17.17578125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.15997983232737, max mem: 17.18359375, count: 59230"
+          },
+          {
+            "name": "Replicated Inserts - Publisher - cpu",
+            "value": 4.6875,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.334300879384394, max cpu: 4.740741, count: 59230"
+          },
+          {
+            "name": "Replicated Inserts - Publisher - mem",
+            "value": 17.10546875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.09937993309978, max mem: 17.10546875, count: 59230"
+          },
+          {
+            "name": "Replicated Updates - Publisher - cpu",
+            "value": 9.384164,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.580292752664327, max cpu: 28.263002, count: 59230"
+          },
+          {
+            "name": "Replicated Updates - Publisher - mem",
+            "value": 17.4765625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.507896916680735, max mem: 17.6796875, count: 59230"
+          },
+          {
+            "name": "Subscriber A Documents - SubscriberA - document_count",
+            "value": 10001,
+            "unit": "median document_count",
+            "extra": "avg document_count: 10000.92177950363, max document_count: 10002.0, count: 59230"
+          },
+          {
+            "name": "Subscriber B Documents - SubscriberB - document_count",
+            "value": 10001,
+            "unit": "median document_count",
+            "extra": "avg document_count: 10000.919111936519, max document_count: 10002.0, count: 59230"
+          },
+          {
+            "name": "Subscriber Lag - Publisher - subscriber_count",
+            "value": 2,
+            "unit": "median subscriber_count",
+            "extra": "avg subscriber_count: 2.0, max subscriber_count: 2.0, count: 59230"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberA - cpu",
+            "value": 18.613668,
+            "unit": "median cpu",
+            "extra": "avg cpu: 16.67361504305349, max cpu: 32.621357, count: 59230"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberA - mem",
+            "value": 47.5078125,
+            "unit": "median mem",
+            "extra": "avg mem: 45.88518605964038, max mem: 57.0390625, count: 59230"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberB - cpu",
+            "value": 18.506023,
+            "unit": "median cpu",
+            "extra": "avg cpu: 16.4287162051618, max cpu: 33.03835, count: 59230"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberB - mem",
+            "value": 47.359375,
+            "unit": "median mem",
+            "extra": "avg mem: 45.83024036330829, max mem: 56.41796875, count: 59230"
           }
         ]
       }
