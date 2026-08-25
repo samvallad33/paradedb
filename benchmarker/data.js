@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787676362187,
+  "lastUpdate": 1787676501488,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "benchmarker hn-ci (QPS)": [
@@ -1213,6 +1213,55 @@ window.BENCHMARK_DATA = {
           {
             "name": "paradedb (single_topk) p99 latency",
             "value": 2.582,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "james.sewell@gmail.com",
+            "name": "James Sewell",
+            "username": "jamessewell"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3540c09ec21744ca430ce76e6475201c4a292c6f",
+          "message": "ci: run the benchmarker suite on the metal benchmark runner (#6069)\n\nMoves `benchmark-benchmarker` from `m8gd.2xlarge` to `m8gd.metal-24xl`,\nthe same whole-host runner the queries and stressgres benchmarks already\nuse (\"chosen for its performance consistency across hosts\").\n\n## Why\n\nThe tracked `hn-ci` latency series swings ~±15% between runs on\nidentical code: the last 12 runs on main range from 1.75 ms to 2.28 ms\nmean latency, including docs-only commits, and this tripped a false\nregression alert on 4696391e4 (a version bump). The workload itself is\nflat run-to-run on dedicated hardware, so the variance is per-run\nenvironment. A `.2xlarge` is a 1/12th slice of a shared metal host:\nvCPUs are dedicated, but memory bandwidth and the system-level cache are\nshared with whoever else is on the box that run.\n\nA whole host removes the noisy neighbours, matching what the other\nbenchmark suites concluded.\n\n## What doesn't change\n\n- Core pinning is untouched and works identically on the same Graviton4\nsilicon: DB on cores 0-3, pgbouncer on 4, k6 tasksetted onto 5-7.\n- Still no EBS data volume; the metal host's local NVMe serves the same\nrole.\n\n## Notes\n\n- The series may show a small step (likely faster) at the first metal\nrun, since the benchmark cores now get the chip's system-level cache to\nthemselves. Alerts only fire on regressions, so no false page, but the\nhistory chart will have a seam.\n- Runner cost per run goes up (~$5.40/hr vs ~$0.45/hr on-demand), the\nsame trade the other benchmark workflows accepted.\n\n**Testing:** add the `benchmark-benchmarker` label to run on this PR;\nre-dispatching on the same commit a few times afterwards will show\nwhether metal flattens the spread.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+          "timestamp": "2026-08-25T12:23:36-04:00",
+          "tree_id": "9854d10ba881cf37740c2db421a18e7982235e0b",
+          "url": "https://github.com/paradedb/paradedb/commit/3540c09ec21744ca430ce76e6475201c4a292c6f"
+        },
+        "date": 1787676494676,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "paradedb (single_topk) mean latency",
+            "value": 1.6012192193809085,
+            "unit": "ms"
+          },
+          {
+            "name": "paradedb (single_topk) p50 latency",
+            "value": 1.538,
+            "unit": "ms"
+          },
+          {
+            "name": "paradedb (single_topk) p90 latency",
+            "value": 1.862,
+            "unit": "ms"
+          },
+          {
+            "name": "paradedb (single_topk) p95 latency",
+            "value": 1.903,
+            "unit": "ms"
+          },
+          {
+            "name": "paradedb (single_topk) p99 latency",
+            "value": 2.065,
             "unit": "ms"
           }
         ]
