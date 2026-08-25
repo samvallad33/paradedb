@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787696301926,
+  "lastUpdate": 1787696309360,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -136732,6 +136732,108 @@ window.BENCHMARK_DATA = {
             "value": 46.9375,
             "unit": "median mem",
             "extra": "avg mem: 43.946394797189264, max mem: 50.5703125, count: 59415"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787696306192,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Background Merger - Primary - background_merging",
+            "value": 0,
+            "unit": "median background_merging",
+            "extra": "avg background_merging: 0.059228464671626214, max background_merging: 2.0, count: 59414"
+          },
+          {
+            "name": "Background Merger - Primary - cpu",
+            "value": 4.717445,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.7892425403889, max cpu: 9.866392, count: 59414"
+          },
+          {
+            "name": "Background Merger - Primary - mem",
+            "value": 19.75390625,
+            "unit": "median mem",
+            "extra": "avg mem: 19.750648981616287, max mem: 19.84765625, count: 59414"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 4.7151275,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.980624678628692, max cpu: 27.961164, count: 59414"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 47.64453125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.31314727221278, max mem: 52.40625, count: 59414"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 64206,
+            "unit": "median block_count",
+            "extra": "avg block_count: 63880.430740229574, max block_count: 64206.0, count: 59414"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 67,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 65.58334735920826, max segment_count: 106.0, count: 59414"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - cpu",
+            "value": 23.610426,
+            "unit": "median cpu",
+            "extra": "avg cpu: 24.108232651996797, max cpu: 34.07708, count: 59414"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - mem",
+            "value": 84.0859375,
+            "unit": "median mem",
+            "extra": "avg mem: 79.842940334454, max mem: 84.12109375, count: 59414"
+          },
+          {
+            "name": "Single Insert - Primary - cpu",
+            "value": 4.698972,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.657341749105527, max cpu: 23.4375, count: 59414"
+          },
+          {
+            "name": "Single Insert - Primary - mem",
+            "value": 49.37109375,
+            "unit": "median mem",
+            "extra": "avg mem: 46.11557125898357, max mem: 51.81640625, count: 59414"
+          },
+          {
+            "name": "Single Update - Primary - cpu",
+            "value": 4.717445,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.338440192884212, max cpu: 32.78049, count: 59414"
+          },
+          {
+            "name": "Single Update - Primary - mem",
+            "value": 100,
+            "unit": "median mem",
+            "extra": "avg mem: 99.46458628753324, max mem: 104.45703125, count: 59414"
           }
         ]
       }
