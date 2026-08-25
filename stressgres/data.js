@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787676003077,
+  "lastUpdate": 1787676014053,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -289674,6 +289674,128 @@ window.BENCHMARK_DATA = {
             "value": 168,
             "unit": "median segment_count",
             "extra": "avg segment_count: 195.56936849013107, max segment_count: 359.0, count: 59429"
+          }
+        ]
+      }
+    ],
+    "pg_search single-node-planner-paths.toml Performance - TPS": [
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0083a5846437586684ef5c5a8cc0898162610f6",
+          "message": "test(stressgres): expand planner and topology coverage (#5889)\n\n## What\n\nOur Stressgres workloads were extremely outdated. I discovered this\nwhile adding \"plan shape assertions\" to them, which was recommended by\nCarl Sverre from Antithesis. They existed from pre-AggregateScan and\npre-JoinScan era, and even for the BaseScan they only covered some\ncases. This PR revamps them to be more up-to-date and have wider\ncoverage, which notably caught an MPP bug that had previously slipped\nthrough.\n\nThe performance alerts can be ignored for this PR, since this revamps\nthe suites altogether and previous values are now meaningless.\n\nCloses (partially) #5500. I commented future area of work on that issue,\nwhich is why I'm not closing it fully. More context:\n\n## Planner coverage\n\nThe single-node planner suite now asserts coverage for:\n\n- ParadeDB Base Scan, including normal, parallel, columnar, unordered\nTop K, key-ordered Top K, and score-ordered Top K paths\n- Aggregate Scan, including plain counts, grouped aggregates, and\n`pdb.agg`\n- JoinScan\n- PostgreSQL fallbacks, including Index Scan, Index Only Scan, Seq Scan,\nand Sort over a ParadeDB Base Scan\n\nAssertions are attached to the executor state that actually represents\neach optimized path, including Top K coverage under `TopKScanExecState`.\n\n## Suites and topologies\n\n- Renames suites around the behavior they validate:\n  - `single-node-planner-paths.toml`\n  - `bulk-update-merge-pressure.toml`\n  - `logical-replication-mixed-workload.toml`\n  - `logical-replication-fsm-merge-race.toml`\n- Adds `partitioned-table.toml` for partition pruning, parent/child scan\nplanning, aggregates, joins, and writes\n- Adds `logical-replication-multi-subscriber.toml` for one publisher\nwith two ParadeDB subscribers under mixed reads and writes\n- Narrows the FSM merge-race workload to paths relevant to that race\n- Removes the unused `vanilla-postgres.toml` suite and its references\n- Adds Antithesis entrypoints for every bundled suite, including\nindependent databases for the two logical-replication subscribers\n\nPhysical replication remains an enterprise-only topology:\n`paradedb-enterprise` already exercises its physical-replication and\ncombined physical/logical-replication suites in CI and Antithesis.\n\n## Tests\n\n`benchmark-stressgres` and `antithesis-stressgres` both pass error-free.",
+          "timestamp": "2026-08-25T12:18:01-04:00",
+          "tree_id": "c9794ea2e72745d63a40423e253a4bfc016ddf50",
+          "url": "https://github.com/paradedb/paradedb/commit/e0083a5846437586684ef5c5a8cc0898162610f6"
+        },
+        "date": 1787676008930,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 190.23867099236818,
+            "unit": "median tps",
+            "extra": "avg tps: 190.61972161963925, max tps: 221.87739003551079, count: 57380"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - tps",
+            "value": 354.27309729206934,
+            "unit": "median tps",
+            "extra": "avg tps: 346.0379973160721, max tps: 495.24918274776815, count: 57380"
+          },
+          {
+            "name": "Delete values - Primary - tps",
+            "value": 4018.7870766773144,
+            "unit": "median tps",
+            "extra": "avg tps: 4015.7681253861692, max tps: 4046.363846109307, count: 57380"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - tps",
+            "value": 195.69391142385064,
+            "unit": "median tps",
+            "extra": "avg tps: 196.0241767849381, max tps: 226.1413399934341, count: 57380"
+          },
+          {
+            "name": "Insert value A - Primary - tps",
+            "value": 3393.738957524319,
+            "unit": "median tps",
+            "extra": "avg tps: 3390.6628689061768, max tps: 3434.7108996369016, count: 57380"
+          },
+          {
+            "name": "Insert value B - Primary - tps",
+            "value": 3432.1782846383494,
+            "unit": "median tps",
+            "extra": "avg tps: 3423.5812229883977, max tps: 3498.911138853589, count: 57380"
+          },
+          {
+            "name": "JoinScan - Primary - tps",
+            "value": 157.47378233911633,
+            "unit": "median tps",
+            "extra": "avg tps: 157.04538188467777, max tps: 181.19996661989495, count: 57380"
+          },
+          {
+            "name": "Normal Base Scan - Primary - tps",
+            "value": 305.7939290088046,
+            "unit": "median tps",
+            "extra": "avg tps: 305.9112432473814, max tps: 379.502605230517, count: 57380"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - tps",
+            "value": 519.2692087179627,
+            "unit": "median tps",
+            "extra": "avg tps: 518.5098978906061, max tps: 583.5958189269666, count: 57380"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - tps",
+            "value": 629.9397134426924,
+            "unit": "median tps",
+            "extra": "avg tps: 630.0673319713294, max tps: 715.7857968055912, count: 57380"
+          },
+          {
+            "name": "Rotate join keys - Primary - tps",
+            "value": 1286.5082204799542,
+            "unit": "median tps",
+            "extra": "avg tps: 1284.5126741737135, max tps: 1290.0473660638309, count: 57380"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - tps",
+            "value": 392.470770959967,
+            "unit": "median tps",
+            "extra": "avg tps: 396.60543430265267, max tps: 591.5794991674042, count: 57380"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 573.6376906088988,
+            "unit": "median tps",
+            "extra": "avg tps: 572.4299559418546, max tps: 623.0860562972094, count: 57380"
+          },
+          {
+            "name": "Update joined rows - Primary - tps",
+            "value": 2332.084741607125,
+            "unit": "median tps",
+            "extra": "avg tps: 2332.9827817300516, max tps: 2432.740038993864, count: 57380"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 1796.4352549607731,
+            "unit": "median tps",
+            "extra": "avg tps: 1766.0317862909096, max tps: 1816.035911594991, count: 57380"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 9.671319087872696,
+            "unit": "median tps",
+            "extra": "avg tps: 11.805860125282178, max tps: 452.89219218389593, count: 57380"
           }
         ]
       }
