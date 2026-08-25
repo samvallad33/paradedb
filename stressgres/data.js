@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787699259631,
+  "lastUpdate": 1787699268491,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291200,6 +291200,162 @@ window.BENCHMARK_DATA = {
             "value": 17.63671875,
             "unit": "median mem",
             "extra": "avg mem: 17.539467947676478, max mem: 17.7421875, count: 59242"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mithun.cy@gmail.com",
+            "name": "Mithun Chicklore Yogendra",
+            "username": "mithuncy"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd124da0cbd34938fdf65a773cdc0081c283cf67",
+          "message": "perf: Initialize MPP search readers only where they execute (#6026)\n\n# Ticket(s) Closed\n\n- Related to #5999\n\n## What\n\nThe MPP leader opened every source index twice:\n\n1. At query begin, to capture and pin the segment manifest used to\npopulate the DSM.\n2. During DataFusion planning, to build the leader's\n`SearchIndexReader`.\n\nIt also opened fast fields for every segment when constructing\n`FFHelper`, including mutable segments the process never scanned.\n\nThis PR changes that:\n\n- `SearchIndexManifest` retains the components created during capture.\nThe leader builds its reader from those components using\n`SearchIndexReader::from_manifest`, avoiding the second index open while\npreserving the same searcher and segment view.\n- Tokenizers are registered into the managers already shared with the\ncaptured searcher.\n- `FFHelper` retains one `Searcher` and opens a segment's fast fields on\nfirst access. Mutable segments are materialized only in processes that\nactually scan them.\n- JoinScan injects manifests through the logical-plan codec.\nAggregateScan injects them directly into its providers. Serial scans and\nworker reader construction are unchanged.\n\n## Why\n\nThe second leader open became redundant after begin-time manifest\ncapture was added in #4311. Eager fast-field initialization also made\nevery process pay for segments assigned to other workers.\n\nReusing the manifest removes the redundant leader open. Lazy fast fields\navoid opening or materializing segments the process never reads.\n\n## Tests\n\n- `from_manifest_reuses_the_captured_open`: verifies zero additional\nindex opens, the same segment view, and tokenizer registration.\n- `decoded_provider_reuses_the_injected_manifest`: verifies manifest\nreuse through codec deserialization and provider planning.\n- `ffhelper_opens_only_the_segment_it_reads`: verifies only the accessed\nsegment opens and an unaccessed mutable segment remains cold.\n- `mpp_deferred_open_leader`: verifies leader-hosted leaves through\nJoinScan and AggregateScan, result parity, and continued MPP launch.\n- Local full regress and MPP integration results matched `main`.\n\n## Benchmark\n\nSame-session A/B against `12ddb8a9e`: release builds, PostgreSQL 17.7,\nApple Silicon, four MPP workers, one client, 20 warmups followed by five\nbatches of 100 transactions. Result hashes matched between base and\nhead.\n\n| Layout | Query | Base | Head | Change |\n| --- | --- | ---: | ---: | ---: |\n| Mixed: 5/21 segments | no text filter | 47.211 ms | 23.273 ms | −50.7%\n|\n| Mixed | `dragon` | 58.703 ms | 34.433 ms | −41.3% |\n| Mixed | `love` | 59.169 ms | 34.521 ms | −41.7% |\n| 128 immutable | all three | 13.99 / 16.48 / 16.83 ms | 13.6–14.6 /\n16.9 / 17.5 ms | within noise |\n\nThe mixed-layout improvement comes from avoiding mutable-segment\nmaterialization in processes that never scan those segments.\nImmutable-only layouts remain within noise.",
+          "timestamp": "2026-08-25T15:48:45-07:00",
+          "tree_id": "6319144c55e93583efe6b2261450a4e2f12e7dfc",
+          "url": "https://github.com/paradedb/paradedb/commit/cd124da0cbd34938fdf65a773cdc0081c283cf67"
+        },
+        "date": 1787699264958,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - cpu",
+            "value": 23.166023,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.754774430518804, max cpu: 33.23442, count: 59252"
+          },
+          {
+            "name": "Aggregate Scan - Subscriber - mem",
+            "value": 49.484375,
+            "unit": "median mem",
+            "extra": "avg mem: 49.50036839473773, max mem: 63.55859375, count: 59252"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 4.6966734,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.350694311906202, max cpu: 4.7477746, count: 59252"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.15625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.13085726536657, max mem: 17.15625, count: 59252"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.6511626,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.701561712611388, max cpu: 9.37958, count: 59252"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.5546875,
+            "unit": "median mem",
+            "extra": "avg mem: 21.54305379459765, max mem: 21.5546875, count: 59252"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 10586,
+            "unit": "median pages",
+            "extra": "avg pages: 9367.793357186256, max pages: 15001.0, count: 59252"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 82.703125,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 73.18588573486971, max relation_size:MB: 117.1953125, count: 59252"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 70,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 65.28334908526294, max segment_count: 92.0, count: 59252"
+          },
+          {
+            "name": "Insert value - Publisher - cpu",
+            "value": 4.6511626,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.24646890432383, max cpu: 4.6966734, count: 59252"
+          },
+          {
+            "name": "Insert value - Publisher - mem",
+            "value": 17.1953125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.165982200495343, max mem: 17.1953125, count: 59252"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - cpu",
+            "value": 23.188406,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.91878283580031, max cpu: 37.37226, count: 59252"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - mem",
+            "value": 47.78125,
+            "unit": "median mem",
+            "extra": "avg mem: 48.169824700010125, max mem: 63.0390625, count: 59252"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - cpu",
+            "value": 23.154848,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.653228990891144, max cpu: 37.37226, count: 59252"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - mem",
+            "value": 46.7421875,
+            "unit": "median mem",
+            "extra": "avg mem: 46.273978620974816, max mem: 57.74609375, count: 59252"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 102.50231170654297,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 199.91651838590138, max replication_lag:MB: 961.2197418212891, count: 59252"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - cpu",
+            "value": 23.188406,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.905905442297442, max cpu: 37.982197, count: 59252"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - mem",
+            "value": 48.203125,
+            "unit": "median mem",
+            "extra": "avg mem: 48.33955980652552, max mem: 62.62109375, count: 59252"
+          },
+          {
+            "name": "Update 1..50 - Publisher - cpu",
+            "value": 9.261939,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.868963186618513, max cpu: 32.24568, count: 59252"
+          },
+          {
+            "name": "Update 1..50 - Publisher - mem",
+            "value": 17.578125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.563761428939106, max mem: 17.703125, count: 59252"
+          },
+          {
+            "name": "Update 51..100 - Publisher - cpu",
+            "value": 9.253012,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.772226485722427, max cpu: 32.8125, count: 59252"
+          },
+          {
+            "name": "Update 51..100 - Publisher - mem",
+            "value": 17.59375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.589010642573246, max mem: 17.72265625, count: 59252"
           }
         ]
       }
