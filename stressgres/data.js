@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787700371039,
+  "lastUpdate": 1787700378975,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -136882,6 +136882,108 @@ window.BENCHMARK_DATA = {
             "value": 100,
             "unit": "median mem",
             "extra": "avg mem: 99.46458628753324, max mem: 104.45703125, count: 59414"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mithun.cy@gmail.com",
+            "name": "Mithun Chicklore Yogendra",
+            "username": "mithuncy"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd124da0cbd34938fdf65a773cdc0081c283cf67",
+          "message": "perf: Initialize MPP search readers only where they execute (#6026)\n\n# Ticket(s) Closed\n\n- Related to #5999\n\n## What\n\nThe MPP leader opened every source index twice:\n\n1. At query begin, to capture and pin the segment manifest used to\npopulate the DSM.\n2. During DataFusion planning, to build the leader's\n`SearchIndexReader`.\n\nIt also opened fast fields for every segment when constructing\n`FFHelper`, including mutable segments the process never scanned.\n\nThis PR changes that:\n\n- `SearchIndexManifest` retains the components created during capture.\nThe leader builds its reader from those components using\n`SearchIndexReader::from_manifest`, avoiding the second index open while\npreserving the same searcher and segment view.\n- Tokenizers are registered into the managers already shared with the\ncaptured searcher.\n- `FFHelper` retains one `Searcher` and opens a segment's fast fields on\nfirst access. Mutable segments are materialized only in processes that\nactually scan them.\n- JoinScan injects manifests through the logical-plan codec.\nAggregateScan injects them directly into its providers. Serial scans and\nworker reader construction are unchanged.\n\n## Why\n\nThe second leader open became redundant after begin-time manifest\ncapture was added in #4311. Eager fast-field initialization also made\nevery process pay for segments assigned to other workers.\n\nReusing the manifest removes the redundant leader open. Lazy fast fields\navoid opening or materializing segments the process never reads.\n\n## Tests\n\n- `from_manifest_reuses_the_captured_open`: verifies zero additional\nindex opens, the same segment view, and tokenizer registration.\n- `decoded_provider_reuses_the_injected_manifest`: verifies manifest\nreuse through codec deserialization and provider planning.\n- `ffhelper_opens_only_the_segment_it_reads`: verifies only the accessed\nsegment opens and an unaccessed mutable segment remains cold.\n- `mpp_deferred_open_leader`: verifies leader-hosted leaves through\nJoinScan and AggregateScan, result parity, and continued MPP launch.\n- Local full regress and MPP integration results matched `main`.\n\n## Benchmark\n\nSame-session A/B against `12ddb8a9e`: release builds, PostgreSQL 17.7,\nApple Silicon, four MPP workers, one client, 20 warmups followed by five\nbatches of 100 transactions. Result hashes matched between base and\nhead.\n\n| Layout | Query | Base | Head | Change |\n| --- | --- | ---: | ---: | ---: |\n| Mixed: 5/21 segments | no text filter | 47.211 ms | 23.273 ms | −50.7%\n|\n| Mixed | `dragon` | 58.703 ms | 34.433 ms | −41.3% |\n| Mixed | `love` | 59.169 ms | 34.521 ms | −41.7% |\n| 128 immutable | all three | 13.99 / 16.48 / 16.83 ms | 13.6–14.6 /\n16.9 / 17.5 ms | within noise |\n\nThe mixed-layout improvement comes from avoiding mutable-segment\nmaterialization in processes that never scan those segments.\nImmutable-only layouts remain within noise.",
+          "timestamp": "2026-08-25T15:48:45-07:00",
+          "tree_id": "6319144c55e93583efe6b2261450a4e2f12e7dfc",
+          "url": "https://github.com/paradedb/paradedb/commit/cd124da0cbd34938fdf65a773cdc0081c283cf67"
+        },
+        "date": 1787700375751,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Background Merger - Primary - background_merging",
+            "value": 0,
+            "unit": "median background_merging",
+            "extra": "avg background_merging: 0.05992629116671996, max background_merging: 2.0, count: 59423"
+          },
+          {
+            "name": "Background Merger - Primary - cpu",
+            "value": 4.717445,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.731383575197118, max cpu: 9.528536, count: 59423"
+          },
+          {
+            "name": "Background Merger - Primary - mem",
+            "value": 19.75,
+            "unit": "median mem",
+            "extra": "avg mem: 19.731174560986485, max mem: 19.84765625, count: 59423"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 4.7197638,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.008398314421663, max cpu: 9.766023, count: 59423"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 33.578125,
+            "unit": "median mem",
+            "extra": "avg mem: 33.472607276433365, max mem: 33.6015625, count: 59423"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 63499,
+            "unit": "median block_count",
+            "extra": "avg block_count: 63175.360516971545, max block_count: 63499.0, count: 59423"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 67,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 65.31240428790198, max segment_count: 106.0, count: 59423"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - cpu",
+            "value": 23.622047,
+            "unit": "median cpu",
+            "extra": "avg cpu: 24.05671531689228, max cpu: 34.02532, count: 59423"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - mem",
+            "value": 84,
+            "unit": "median mem",
+            "extra": "avg mem: 79.90254424580971, max mem: 84.05078125, count: 59423"
+          },
+          {
+            "name": "Single Insert - Primary - cpu",
+            "value": 4.703577,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.124368641808494, max cpu: 32.8125, count: 59423"
+          },
+          {
+            "name": "Single Insert - Primary - mem",
+            "value": 100.26171875,
+            "unit": "median mem",
+            "extra": "avg mem: 99.58524154946318, max mem: 104.43359375, count: 59423"
+          },
+          {
+            "name": "Single Update - Primary - cpu",
+            "value": 4.7197638,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.863416454296958, max cpu: 28.125, count: 59423"
+          },
+          {
+            "name": "Single Update - Primary - mem",
+            "value": 45.86328125,
+            "unit": "median mem",
+            "extra": "avg mem: 46.493698975459836, max mem: 51.80078125, count: 59423"
           }
         ]
       }
