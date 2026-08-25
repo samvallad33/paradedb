@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787675932873,
+  "lastUpdate": 1787675945727,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -136282,6 +136282,108 @@ window.BENCHMARK_DATA = {
             "value": 25.3125,
             "unit": "median mem",
             "extra": "avg mem: 49.72960661121209, max mem: 83.234375, count: 59418"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0083a5846437586684ef5c5a8cc0898162610f6",
+          "message": "test(stressgres): expand planner and topology coverage (#5889)\n\n## What\n\nOur Stressgres workloads were extremely outdated. I discovered this\nwhile adding \"plan shape assertions\" to them, which was recommended by\nCarl Sverre from Antithesis. They existed from pre-AggregateScan and\npre-JoinScan era, and even for the BaseScan they only covered some\ncases. This PR revamps them to be more up-to-date and have wider\ncoverage, which notably caught an MPP bug that had previously slipped\nthrough.\n\nThe performance alerts can be ignored for this PR, since this revamps\nthe suites altogether and previous values are now meaningless.\n\nCloses (partially) #5500. I commented future area of work on that issue,\nwhich is why I'm not closing it fully. More context:\n\n## Planner coverage\n\nThe single-node planner suite now asserts coverage for:\n\n- ParadeDB Base Scan, including normal, parallel, columnar, unordered\nTop K, key-ordered Top K, and score-ordered Top K paths\n- Aggregate Scan, including plain counts, grouped aggregates, and\n`pdb.agg`\n- JoinScan\n- PostgreSQL fallbacks, including Index Scan, Index Only Scan, Seq Scan,\nand Sort over a ParadeDB Base Scan\n\nAssertions are attached to the executor state that actually represents\neach optimized path, including Top K coverage under `TopKScanExecState`.\n\n## Suites and topologies\n\n- Renames suites around the behavior they validate:\n  - `single-node-planner-paths.toml`\n  - `bulk-update-merge-pressure.toml`\n  - `logical-replication-mixed-workload.toml`\n  - `logical-replication-fsm-merge-race.toml`\n- Adds `partitioned-table.toml` for partition pruning, parent/child scan\nplanning, aggregates, joins, and writes\n- Adds `logical-replication-multi-subscriber.toml` for one publisher\nwith two ParadeDB subscribers under mixed reads and writes\n- Narrows the FSM merge-race workload to paths relevant to that race\n- Removes the unused `vanilla-postgres.toml` suite and its references\n- Adds Antithesis entrypoints for every bundled suite, including\nindependent databases for the two logical-replication subscribers\n\nPhysical replication remains an enterprise-only topology:\n`paradedb-enterprise` already exercises its physical-replication and\ncombined physical/logical-replication suites in CI and Antithesis.\n\n## Tests\n\n`benchmark-stressgres` and `antithesis-stressgres` both pass error-free.",
+          "timestamp": "2026-08-25T12:18:01-04:00",
+          "tree_id": "c9794ea2e72745d63a40423e253a4bfc016ddf50",
+          "url": "https://github.com/paradedb/paradedb/commit/e0083a5846437586684ef5c5a8cc0898162610f6"
+        },
+        "date": 1787675939894,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Background Merger - Primary - background_merging",
+            "value": 0,
+            "unit": "median background_merging",
+            "extra": "avg background_merging: 0.08574265423580492, max background_merging: 2.0, count: 59422"
+          },
+          {
+            "name": "Background Merger - Primary - cpu",
+            "value": 4.7220855,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.7792629775610544, max cpu: 9.7165985, count: 59422"
+          },
+          {
+            "name": "Background Merger - Primary - mem",
+            "value": 19.55078125,
+            "unit": "median mem",
+            "extra": "avg mem: 19.54869678160025, max mem: 19.57421875, count: 59422"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 4.7220855,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.009844228817585, max cpu: 9.751143, count: 59422"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 33.1640625,
+            "unit": "median mem",
+            "extra": "avg mem: 33.063287337286695, max mem: 33.1875, count: 59422"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 52177,
+            "unit": "median block_count",
+            "extra": "avg block_count: 51996.49742519605, max block_count: 52177.0, count: 59422"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 72,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 69.3935074551513, max segment_count: 105.0, count: 59422"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - cpu",
+            "value": 23.633678,
+            "unit": "median cpu",
+            "extra": "avg cpu: 24.033388067925426, max cpu: 33.667336, count: 59422"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - mem",
+            "value": 83.05859375,
+            "unit": "median mem",
+            "extra": "avg mem: 79.54010805394046, max mem: 83.3515625, count: 59422"
+          },
+          {
+            "name": "Single Insert - Primary - cpu",
+            "value": 4.701273,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.758859176501437, max cpu: 23.785927, count: 59422"
+          },
+          {
+            "name": "Single Insert - Primary - mem",
+            "value": 47.296875,
+            "unit": "median mem",
+            "extra": "avg mem: 44.32037067763202, max mem: 50.50390625, count: 59422"
+          },
+          {
+            "name": "Single Update - Primary - cpu",
+            "value": 4.717445,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.826630930205287, max cpu: 9.67742, count: 59422"
+          },
+          {
+            "name": "Single Update - Primary - mem",
+            "value": 32.96484375,
+            "unit": "median mem",
+            "extra": "avg mem: 32.92513853507539, max mem: 33.01953125, count: 59422"
           }
         ]
       }
