@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787700324603,
+  "lastUpdate": 1787700335361,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -292490,6 +292490,126 @@ window.BENCHMARK_DATA = {
             "value": 4.8856045093653275,
             "unit": "median tps",
             "extra": "avg tps: 14.811030944223047, max tps: 778.2119335687165, count: 57405"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mithun.cy@gmail.com",
+            "name": "Mithun Chicklore Yogendra",
+            "username": "mithuncy"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd124da0cbd34938fdf65a773cdc0081c283cf67",
+          "message": "perf: Initialize MPP search readers only where they execute (#6026)\n\n# Ticket(s) Closed\n\n- Related to #5999\n\n## What\n\nThe MPP leader opened every source index twice:\n\n1. At query begin, to capture and pin the segment manifest used to\npopulate the DSM.\n2. During DataFusion planning, to build the leader's\n`SearchIndexReader`.\n\nIt also opened fast fields for every segment when constructing\n`FFHelper`, including mutable segments the process never scanned.\n\nThis PR changes that:\n\n- `SearchIndexManifest` retains the components created during capture.\nThe leader builds its reader from those components using\n`SearchIndexReader::from_manifest`, avoiding the second index open while\npreserving the same searcher and segment view.\n- Tokenizers are registered into the managers already shared with the\ncaptured searcher.\n- `FFHelper` retains one `Searcher` and opens a segment's fast fields on\nfirst access. Mutable segments are materialized only in processes that\nactually scan them.\n- JoinScan injects manifests through the logical-plan codec.\nAggregateScan injects them directly into its providers. Serial scans and\nworker reader construction are unchanged.\n\n## Why\n\nThe second leader open became redundant after begin-time manifest\ncapture was added in #4311. Eager fast-field initialization also made\nevery process pay for segments assigned to other workers.\n\nReusing the manifest removes the redundant leader open. Lazy fast fields\navoid opening or materializing segments the process never reads.\n\n## Tests\n\n- `from_manifest_reuses_the_captured_open`: verifies zero additional\nindex opens, the same segment view, and tokenizer registration.\n- `decoded_provider_reuses_the_injected_manifest`: verifies manifest\nreuse through codec deserialization and provider planning.\n- `ffhelper_opens_only_the_segment_it_reads`: verifies only the accessed\nsegment opens and an unaccessed mutable segment remains cold.\n- `mpp_deferred_open_leader`: verifies leader-hosted leaves through\nJoinScan and AggregateScan, result parity, and continued MPP launch.\n- Local full regress and MPP integration results matched `main`.\n\n## Benchmark\n\nSame-session A/B against `12ddb8a9e`: release builds, PostgreSQL 17.7,\nApple Silicon, four MPP workers, one client, 20 warmups followed by five\nbatches of 100 transactions. Result hashes matched between base and\nhead.\n\n| Layout | Query | Base | Head | Change |\n| --- | --- | ---: | ---: | ---: |\n| Mixed: 5/21 segments | no text filter | 47.211 ms | 23.273 ms | −50.7%\n|\n| Mixed | `dragon` | 58.703 ms | 34.433 ms | −41.3% |\n| Mixed | `love` | 59.169 ms | 34.521 ms | −41.7% |\n| 128 immutable | all three | 13.99 / 16.48 / 16.83 ms | 13.6–14.6 /\n16.9 / 17.5 ms | within noise |\n\nThe mixed-layout improvement comes from avoiding mutable-segment\nmaterialization in processes that never scan those segments.\nImmutable-only layouts remain within noise.",
+          "timestamp": "2026-08-25T15:48:45-07:00",
+          "tree_id": "6319144c55e93583efe6b2261450a4e2f12e7dfc",
+          "url": "https://github.com/paradedb/paradedb/commit/cd124da0cbd34938fdf65a773cdc0081c283cf67"
+        },
+        "date": 1787700327591,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 171.2727069089781,
+            "unit": "median tps",
+            "extra": "avg tps: 176.41562112624126, max tps: 224.99902752824158, count: 57443"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - tps",
+            "value": 268.24387153085974,
+            "unit": "median tps",
+            "extra": "avg tps: 295.9684108587075, max tps: 506.37831050958414, count: 57443"
+          },
+          {
+            "name": "Delete values - Primary - tps",
+            "value": 4048.6022737035146,
+            "unit": "median tps",
+            "extra": "avg tps: 4026.3708918075636, max tps: 4068.626715644506, count: 57443"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - tps",
+            "value": 174.44247191175427,
+            "unit": "median tps",
+            "extra": "avg tps: 180.08675835098524, max tps: 230.59038878465955, count: 57443"
+          },
+          {
+            "name": "Insert value A - Primary - tps",
+            "value": 3405.27772305702,
+            "unit": "median tps",
+            "extra": "avg tps: 3384.850309755421, max tps: 3555.1366498539514, count: 57443"
+          },
+          {
+            "name": "Insert value B - Primary - tps",
+            "value": 3391.5558148272894,
+            "unit": "median tps",
+            "extra": "avg tps: 3376.6974770677357, max tps: 3446.8602479657193, count: 57443"
+          },
+          {
+            "name": "JoinScan - Primary - tps",
+            "value": 153.2876847232,
+            "unit": "median tps",
+            "extra": "avg tps: 156.61313687133827, max tps: 193.52819199294058, count: 57443"
+          },
+          {
+            "name": "Normal Base Scan - Primary - tps",
+            "value": 255.9841312966356,
+            "unit": "median tps",
+            "extra": "avg tps: 266.868341278356, max tps: 388.3606369148966, count: 57443"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - tps",
+            "value": 497.1962171133248,
+            "unit": "median tps",
+            "extra": "avg tps: 507.1939418540592, max tps: 598.044897622644, count: 57443"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - tps",
+            "value": 576.7864467540176,
+            "unit": "median tps",
+            "extra": "avg tps: 587.7801519331874, max tps: 713.9762565767923, count: 57443"
+          },
+          {
+            "name": "Rotate join keys - Primary - tps",
+            "value": 1274.0110797746904,
+            "unit": "median tps",
+            "extra": "avg tps: 1272.4414579443824, max tps: 1276.250088702384, count: 57443"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - tps",
+            "value": 297.90011339777976,
+            "unit": "median tps",
+            "extra": "avg tps: 322.19648611097534, max tps: 593.5310687536756, count: 57443"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 522.4875772558012,
+            "unit": "median tps",
+            "extra": "avg tps: 533.3979449086664, max tps: 644.922764003717, count: 57443"
+          },
+          {
+            "name": "Update joined rows - Primary - tps",
+            "value": 2326.7765483493467,
+            "unit": "median tps",
+            "extra": "avg tps: 2328.8602075406816, max tps: 2475.7511726147854, count: 57443"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 1721.4693222243493,
+            "unit": "median tps",
+            "extra": "avg tps: 1718.7920686128014, max tps: 1867.5426957176783, count: 57443"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 7.588880869404513,
+            "unit": "median tps",
+            "extra": "avg tps: 25.065550092743344, max tps: 1253.5993972694098, count: 57443"
           }
         ]
       }
