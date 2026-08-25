@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787697421153,
+  "lastUpdate": 1787697428000,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291480,6 +291480,66 @@ window.BENCHMARK_DATA = {
             "value": 168,
             "unit": "median segment_count",
             "extra": "avg segment_count: 195.48936528235848, max segment_count: 361.0, count: 59428"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787697424818,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - cpu",
+            "value": 23.460411,
+            "unit": "median cpu",
+            "extra": "avg cpu: 20.980745106654847, max cpu: 33.366436, count: 59440"
+          },
+          {
+            "name": "Aggregate Scan - Primary - mem",
+            "value": 44.76953125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.45965134221484, max mem: 44.796875, count: 59440"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 18.942383,
+            "unit": "median cpu",
+            "extra": "avg cpu: 19.732333124739306, max cpu: 43.11377, count: 59440"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 102.4375,
+            "unit": "median mem",
+            "extra": "avg mem: 101.41320219181107, max mem: 102.4453125, count: 59440"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 26164,
+            "unit": "median block_count",
+            "extra": "avg block_count: 24784.877489905786, max block_count: 28782.0, count: 59440"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 169,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 196.48378196500673, max segment_count: 360.0, count: 59440"
           }
         ]
       }
