@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787697362641,
+  "lastUpdate": 1787697370468,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -293538,6 +293538,96 @@ window.BENCHMARK_DATA = {
             "value": 44.59765625,
             "unit": "median mem",
             "extra": "avg mem: 44.56860704691063, max mem: 51.25, count: 58766"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787697367034,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Partition Index Sizes - Primary - partition_index_size:MB",
+            "value": 56.5703125,
+            "unit": "median partition_index_size:MB",
+            "extra": "avg partition_index_size:MB: 61.88066362706139, max partition_index_size:MB: 91.140625, count: 58759"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - cpu",
+            "value": 23.312288,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.299545114421026, max cpu: 33.300297, count: 58759"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - mem",
+            "value": 45.828125,
+            "unit": "median mem",
+            "extra": "avg mem: 46.625431782258886, max mem: 52.87890625, count: 58759"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.996381951469, max cpu: 42.33219, count: 58759"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - mem",
+            "value": 53.765625,
+            "unit": "median mem",
+            "extra": "avg mem: 59.67134037445327, max mem: 83.625, count: 58759"
+          },
+          {
+            "name": "Partitioned Writes - Primary - cpu",
+            "value": 9.476802,
+            "unit": "median cpu",
+            "extra": "avg cpu: 11.777763512537094, max cpu: 33.005894, count: 58759"
+          },
+          {
+            "name": "Partitioned Writes - Primary - mem",
+            "value": 53.6875,
+            "unit": "median mem",
+            "extra": "avg mem: 50.8185004105754, max mem: 64.44140625, count: 58759"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.91849401932741, max cpu: 33.250866, count: 58759"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - mem",
+            "value": 53.234375,
+            "unit": "median mem",
+            "extra": "avg mem: 52.08632693502272, max mem: 59.953125, count: 58759"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - cpu",
+            "value": 23.312288,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.225124774075717, max cpu: 33.366436, count: 58759"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - mem",
+            "value": 45.140625,
+            "unit": "median mem",
+            "extra": "avg mem: 45.62473375089348, max mem: 52.0234375, count: 58759"
           }
         ]
       }
