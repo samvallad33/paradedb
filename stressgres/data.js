@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787684616582,
+  "lastUpdate": 1787684624579,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291210,6 +291210,90 @@ window.BENCHMARK_DATA = {
             "value": 602.9679367829946,
             "unit": "median tps",
             "extra": "avg tps: 605.4707756895024, max tps: 674.7664038094294, count: 55397"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "400f131982cfe708ae9b48e8fcf9f4a1839c3215",
+          "message": "feat: partitioned index build execution (#6077)\n\n## Ticket(s) Closed\n\n- Closes #5737\n\n## What\n\nThis PR adds partitioned `CREATE INDEX` execution for an index that\ndeclares `partition_by`. Each worker routes its rows onto the leader's\nkd-tree boundaries and writes one segment per cell, so every segment of\na fresh index stays inside one cell's bounds in `partition_by` space,\nwith no merges across workers.\n\nIt carries @devdattatalele's commits from #6012 unchanged, plus the two\nfollow-ups from the last review round.\n\n## Why\n\nSegment pruning on `partition_by` needs segments that don't straddle\ncell boundaries. A parallel scan hands each worker an arbitrary slice of\nthe heap, so a worker has to route every row it sees, and a cross-worker\nmerge would undo the alignment.\n\n## How\n\nPhase 1: the scan callback routes each row with the shared `KdTree` and\nspills only `(pid, ctid)` to a worker-local `bytea` tuplesort. Phase 2:\nthe sorted records re-fetch rows through `HeapDocFetcher` under a reused\nbuffer pin and index them cell by cell, one `SerialIndexWriter` alive at\na time. The sort and the writer split the worker budget. A cell boundary\nfinalizes a segment; an overfull cell merges its own segments in passes\nof at most `CELL_MERGE_FANIN`. The drain walks HOT chain roots to the\nlive tail, so it indexes what the inline callback would have.\n`CONCURRENTLY` skips boundary planning and takes the regular path.\n\nThree refactors land first: the `bytea` tuplesort wrapper moves out of\n`keyset.rs`, `HeapDocFetcher` moves out of `index_memory_segment`, and\n`merge_now` splits out of `try_merge`.\n\nPersisting each cell's `partition_bounds` into segment stats is a\nfollow-up, together with the query-side pruning that reads it. Phase-2\nread amplification for a `partition_by` uncorrelated with heap order is\na known follow-up too (see the discussion on #6012).\n\n## Tests\n\n`#[pg_test]`s in `build_parallel.rs`\n\n---------\n\nCo-authored-by: Devdatta Talele <devtalele0@gmail.com>",
+          "timestamp": "2026-08-25T11:45:29-07:00",
+          "tree_id": "78e6bec5fab50325abb7a6bc7ac19b0b213c7bcf",
+          "url": "https://github.com/paradedb/paradedb/commit/400f131982cfe708ae9b48e8fcf9f4a1839c3215"
+        },
+        "date": 1787684608603,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - tps",
+            "value": 204.69120867062463,
+            "unit": "median tps",
+            "extra": "avg tps: 204.98580616053755, max tps: 222.70216139128695, count: 55296"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - tps",
+            "value": 208.80920665764432,
+            "unit": "median tps",
+            "extra": "avg tps: 208.64054771280829, max tps: 230.95405721988922, count: 55296"
+          },
+          {
+            "name": "JoinScan - Subscriber - tps",
+            "value": 170.18277938805267,
+            "unit": "median tps",
+            "extra": "avg tps: 170.53772729910364, max tps: 196.3774344670193, count: 55296"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - tps",
+            "value": 479.6191513313322,
+            "unit": "median tps",
+            "extra": "avg tps: 482.5712400476738, max tps: 614.2849798438922, count: 55296"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - tps",
+            "value": 342.5825751409851,
+            "unit": "median tps",
+            "extra": "avg tps: 343.6062705945024, max tps: 418.8179548438171, count: 55296"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - tps",
+            "value": 14.858553075311454,
+            "unit": "median tps",
+            "extra": "avg tps: 14.8617985240099, max tps: 17.05467702678946, count: 55296"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - tps",
+            "value": 626.3611904590045,
+            "unit": "median tps",
+            "extra": "avg tps: 623.9649687754762, max tps: 701.7721298684193, count: 55296"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - tps",
+            "value": 656.1815084857208,
+            "unit": "median tps",
+            "extra": "avg tps: 654.3074456237621, max tps: 739.0039485192113, count: 55296"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - tps",
+            "value": 274.47540655743603,
+            "unit": "median tps",
+            "extra": "avg tps: 274.8329397396798, max tps: 319.14181712766276, count: 55296"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - tps",
+            "value": 569.495981359553,
+            "unit": "median tps",
+            "extra": "avg tps: 566.7709009593095, max tps: 606.4395443767205, count: 55296"
           }
         ]
       }
