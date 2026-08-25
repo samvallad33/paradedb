@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787684693046,
+  "lastUpdate": 1787684711483,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -106146,6 +106146,54 @@ window.BENCHMARK_DATA = {
             "value": 2157.8814145209826,
             "unit": "median tps",
             "extra": "avg tps: 2118.489162417269, max tps: 2336.147412162909, count: 59403"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "400f131982cfe708ae9b48e8fcf9f4a1839c3215",
+          "message": "feat: partitioned index build execution (#6077)\n\n## Ticket(s) Closed\n\n- Closes #5737\n\n## What\n\nThis PR adds partitioned `CREATE INDEX` execution for an index that\ndeclares `partition_by`. Each worker routes its rows onto the leader's\nkd-tree boundaries and writes one segment per cell, so every segment of\na fresh index stays inside one cell's bounds in `partition_by` space,\nwith no merges across workers.\n\nIt carries @devdattatalele's commits from #6012 unchanged, plus the two\nfollow-ups from the last review round.\n\n## Why\n\nSegment pruning on `partition_by` needs segments that don't straddle\ncell boundaries. A parallel scan hands each worker an arbitrary slice of\nthe heap, so a worker has to route every row it sees, and a cross-worker\nmerge would undo the alignment.\n\n## How\n\nPhase 1: the scan callback routes each row with the shared `KdTree` and\nspills only `(pid, ctid)` to a worker-local `bytea` tuplesort. Phase 2:\nthe sorted records re-fetch rows through `HeapDocFetcher` under a reused\nbuffer pin and index them cell by cell, one `SerialIndexWriter` alive at\na time. The sort and the writer split the worker budget. A cell boundary\nfinalizes a segment; an overfull cell merges its own segments in passes\nof at most `CELL_MERGE_FANIN`. The drain walks HOT chain roots to the\nlive tail, so it indexes what the inline callback would have.\n`CONCURRENTLY` skips boundary planning and takes the regular path.\n\nThree refactors land first: the `bytea` tuplesort wrapper moves out of\n`keyset.rs`, `HeapDocFetcher` moves out of `index_memory_segment`, and\n`merge_now` splits out of `try_merge`.\n\nPersisting each cell's `partition_bounds` into segment stats is a\nfollow-up, together with the query-side pruning that reads it. Phase-2\nread amplification for a `partition_by` uncorrelated with heap order is\na known follow-up too (see the discussion on #6012).\n\n## Tests\n\n`#[pg_test]`s in `build_parallel.rs`\n\n---------\n\nCo-authored-by: Devdatta Talele <devtalele0@gmail.com>",
+          "timestamp": "2026-08-25T11:45:29-07:00",
+          "tree_id": "78e6bec5fab50325abb7a6bc7ac19b0b213c7bcf",
+          "url": "https://github.com/paradedb/paradedb/commit/400f131982cfe708ae9b48e8fcf9f4a1839c3215"
+        },
+        "date": 1787684662375,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 1377.657436384678,
+            "unit": "median tps",
+            "extra": "avg tps: 1391.9637787311674, max tps: 1492.9501852776496, count: 59415"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - tps",
+            "value": 2.720075311316957,
+            "unit": "median tps",
+            "extra": "avg tps: 2.9795885936727835, max tps: 5.189600066377061, count: 59415"
+          },
+          {
+            "name": "Single Insert - Primary - tps",
+            "value": 1837.1953748683995,
+            "unit": "median tps",
+            "extra": "avg tps: 1827.2053791519636, max tps: 1866.9569655587566, count: 59415"
+          },
+          {
+            "name": "Single Update - Primary - tps",
+            "value": 2160.8211682803685,
+            "unit": "median tps",
+            "extra": "avg tps: 2124.521504030969, max tps: 2340.345660218424, count: 59415"
           }
         ]
       }
