@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787697428000,
+  "lastUpdate": 1787697435736,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291782,6 +291782,126 @@ window.BENCHMARK_DATA = {
             "value": 8.313345225996088,
             "unit": "median tps",
             "extra": "avg tps: 31.032637701753696, max tps: 813.80473243728, count: 57431"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787697410219,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 174.12987889826763,
+            "unit": "median tps",
+            "extra": "avg tps: 179.99320061981376, max tps: 222.1298291558173, count: 57405"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - tps",
+            "value": 295.02838433330425,
+            "unit": "median tps",
+            "extra": "avg tps: 312.6323107798904, max tps: 490.00247662065715, count: 57405"
+          },
+          {
+            "name": "Delete values - Primary - tps",
+            "value": 4035.4980744391914,
+            "unit": "median tps",
+            "extra": "avg tps: 4023.5189589725073, max tps: 4344.594672538162, count: 57405"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - tps",
+            "value": 178.911155764481,
+            "unit": "median tps",
+            "extra": "avg tps: 185.54047996815194, max tps: 232.50334078237788, count: 57405"
+          },
+          {
+            "name": "Insert value A - Primary - tps",
+            "value": 3395.6568915526163,
+            "unit": "median tps",
+            "extra": "avg tps: 3381.7291524782972, max tps: 3487.5726362164696, count: 57405"
+          },
+          {
+            "name": "Insert value B - Primary - tps",
+            "value": 3390.7805849824263,
+            "unit": "median tps",
+            "extra": "avg tps: 3365.8593910092973, max tps: 3669.0495704783953, count: 57405"
+          },
+          {
+            "name": "JoinScan - Primary - tps",
+            "value": 138.94616290659445,
+            "unit": "median tps",
+            "extra": "avg tps: 144.36935073867008, max tps: 183.80812137352018, count: 57405"
+          },
+          {
+            "name": "Normal Base Scan - Primary - tps",
+            "value": 261.40098240686996,
+            "unit": "median tps",
+            "extra": "avg tps: 274.18656179977296, max tps: 374.7420221079513, count: 57405"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - tps",
+            "value": 459.8201299071462,
+            "unit": "median tps",
+            "extra": "avg tps: 476.6650693335058, max tps: 599.2608664363734, count: 57405"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - tps",
+            "value": 585.7155318861476,
+            "unit": "median tps",
+            "extra": "avg tps: 597.9096573002907, max tps: 693.9630361227986, count: 57405"
+          },
+          {
+            "name": "Rotate join keys - Primary - tps",
+            "value": 1277.8755332131022,
+            "unit": "median tps",
+            "extra": "avg tps: 1277.9039496624137, max tps: 1318.5460088880143, count: 57405"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - tps",
+            "value": 304.84426771853606,
+            "unit": "median tps",
+            "extra": "avg tps: 334.698010510294, max tps: 573.5459427413001, count: 57405"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 531.2833843116789,
+            "unit": "median tps",
+            "extra": "avg tps: 542.5490730514778, max tps: 623.9066284828062, count: 57405"
+          },
+          {
+            "name": "Update joined rows - Primary - tps",
+            "value": 2352.991062822061,
+            "unit": "median tps",
+            "extra": "avg tps: 2362.0155837869847, max tps: 2497.3132655232866, count: 57405"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 1768.9399790227947,
+            "unit": "median tps",
+            "extra": "avg tps: 1764.3232304771313, max tps: 1973.9439399921043, count: 57405"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 4.8856045093653275,
+            "unit": "median tps",
+            "extra": "avg tps: 14.811030944223047, max tps: 778.2119335687165, count: 57405"
           }
         ]
       }
