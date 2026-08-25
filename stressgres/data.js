@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787677566690,
+  "lastUpdate": 1787678107228,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291412,6 +291412,60 @@ window.BENCHMARK_DATA = {
             "value": 35.12617123170056,
             "unit": "median tps",
             "extra": "avg tps: 55.4399325297398, max tps: 537.8126162582109, count: 58761"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1da2ad788cb80fb3ad83e5879d4cab8e0cd1a56f",
+          "message": "chore: Post release version bump. (#6061)\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-25T09:38:27-07:00",
+          "tree_id": "889fef766f10e2aa5724c8c3e655c8fd9fbdc170",
+          "url": "https://github.com/paradedb/paradedb/commit/1da2ad788cb80fb3ad83e5879d4cab8e0cd1a56f"
+        },
+        "date": 1787678100876,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Partition-pruned Base Scan - Primary - tps",
+            "value": 33.40090480127688,
+            "unit": "median tps",
+            "extra": "avg tps: 52.50920646448246, max tps: 540.6257226386812, count: 58748"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - tps",
+            "value": 17.479194969293093,
+            "unit": "median tps",
+            "extra": "avg tps: 28.13954293876309, max tps: 355.4206231554643, count: 58748"
+          },
+          {
+            "name": "Partitioned Writes - Primary - tps",
+            "value": 79.60171611031865,
+            "unit": "median tps",
+            "extra": "avg tps: 143.60843687546074, max tps: 1200.831992914432, count: 58748"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - tps",
+            "value": 18.322192063607275,
+            "unit": "median tps",
+            "extra": "avg tps: 28.483397145664433, max tps: 284.80848004004014, count: 58748"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - tps",
+            "value": 35.21971348653281,
+            "unit": "median tps",
+            "extra": "avg tps: 55.720710212258474, max tps: 555.2725931749111, count: 58748"
           }
         ]
       }
