@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787684764630,
+  "lastUpdate": 1787684775452,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -136582,6 +136582,108 @@ window.BENCHMARK_DATA = {
             "value": 51.63671875,
             "unit": "median mem",
             "extra": "avg mem: 49.3999967646836, max mem: 51.63671875, count: 59403"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "400f131982cfe708ae9b48e8fcf9f4a1839c3215",
+          "message": "feat: partitioned index build execution (#6077)\n\n## Ticket(s) Closed\n\n- Closes #5737\n\n## What\n\nThis PR adds partitioned `CREATE INDEX` execution for an index that\ndeclares `partition_by`. Each worker routes its rows onto the leader's\nkd-tree boundaries and writes one segment per cell, so every segment of\na fresh index stays inside one cell's bounds in `partition_by` space,\nwith no merges across workers.\n\nIt carries @devdattatalele's commits from #6012 unchanged, plus the two\nfollow-ups from the last review round.\n\n## Why\n\nSegment pruning on `partition_by` needs segments that don't straddle\ncell boundaries. A parallel scan hands each worker an arbitrary slice of\nthe heap, so a worker has to route every row it sees, and a cross-worker\nmerge would undo the alignment.\n\n## How\n\nPhase 1: the scan callback routes each row with the shared `KdTree` and\nspills only `(pid, ctid)` to a worker-local `bytea` tuplesort. Phase 2:\nthe sorted records re-fetch rows through `HeapDocFetcher` under a reused\nbuffer pin and index them cell by cell, one `SerialIndexWriter` alive at\na time. The sort and the writer split the worker budget. A cell boundary\nfinalizes a segment; an overfull cell merges its own segments in passes\nof at most `CELL_MERGE_FANIN`. The drain walks HOT chain roots to the\nlive tail, so it indexes what the inline callback would have.\n`CONCURRENTLY` skips boundary planning and takes the regular path.\n\nThree refactors land first: the `bytea` tuplesort wrapper moves out of\n`keyset.rs`, `HeapDocFetcher` moves out of `index_memory_segment`, and\n`merge_now` splits out of `try_merge`.\n\nPersisting each cell's `partition_bounds` into segment stats is a\nfollow-up, together with the query-side pruning that reads it. Phase-2\nread amplification for a `partition_by` uncorrelated with heap order is\na known follow-up too (see the discussion on #6012).\n\n## Tests\n\n`#[pg_test]`s in `build_parallel.rs`\n\n---------\n\nCo-authored-by: Devdatta Talele <devtalele0@gmail.com>",
+          "timestamp": "2026-08-25T11:45:29-07:00",
+          "tree_id": "78e6bec5fab50325abb7a6bc7ac19b0b213c7bcf",
+          "url": "https://github.com/paradedb/paradedb/commit/400f131982cfe708ae9b48e8fcf9f4a1839c3215"
+        },
+        "date": 1787684719090,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Background Merger - Primary - background_merging",
+            "value": 0,
+            "unit": "median background_merging",
+            "extra": "avg background_merging: 0.08489438693932509, max background_merging: 2.0, count: 59415"
+          },
+          {
+            "name": "Background Merger - Primary - cpu",
+            "value": 4.729064,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.85075272225141, max cpu: 9.876543, count: 59415"
+          },
+          {
+            "name": "Background Merger - Primary - mem",
+            "value": 19.6640625,
+            "unit": "median mem",
+            "extra": "avg mem: 19.662418541719262, max mem: 19.66796875, count: 59415"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 4.7197638,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.9946505332855295, max cpu: 23.645319, count: 59415"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 46.89453125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.092657972523774, max mem: 50.75390625, count: 59415"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 52160,
+            "unit": "median block_count",
+            "extra": "avg block_count: 51980.62332744257, max block_count: 52160.0, count: 59415"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 72,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 69.47235546579147, max segment_count: 105.0, count: 59415"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - cpu",
+            "value": 23.59882,
+            "unit": "median cpu",
+            "extra": "avg cpu: 23.997773866797353, max cpu: 33.81983, count: 59415"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - mem",
+            "value": 83.515625,
+            "unit": "median mem",
+            "extra": "avg mem: 80.01782713487755, max mem: 83.796875, count: 59415"
+          },
+          {
+            "name": "Single Insert - Primary - cpu",
+            "value": 4.7151275,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.537395311027134, max cpu: 28.20764, count: 59415"
+          },
+          {
+            "name": "Single Insert - Primary - mem",
+            "value": 50.9921875,
+            "unit": "median mem",
+            "extra": "avg mem: 49.11910397206093, max mem: 51.80078125, count: 59415"
+          },
+          {
+            "name": "Single Update - Primary - cpu",
+            "value": 4.7197638,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.834778082212462, max cpu: 28.346458, count: 59415"
+          },
+          {
+            "name": "Single Update - Primary - mem",
+            "value": 46.9375,
+            "unit": "median mem",
+            "extra": "avg mem: 43.946394797189264, max mem: 50.5703125, count: 59415"
           }
         ]
       }
