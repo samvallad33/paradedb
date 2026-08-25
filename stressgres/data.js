@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787699802914,
+  "lastUpdate": 1787699810447,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291404,6 +291404,162 @@ window.BENCHMARK_DATA = {
             "value": 17.59375,
             "unit": "median mem",
             "extra": "avg mem: 17.589010642573246, max mem: 17.72265625, count: 59252"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39a2eec5d040dde203ab335772bea9a43e26f378",
+          "message": "feat: Unify planner warnings GUCs, and allow for converting them into errors. (#6082)\n\n## What\n\nReplaces the separate boolean GUCs `paradedb.check_aggregate_scan` and\n`paradedb.check_topk_scan` with a single unified enum GUC,\n`paradedb.planner_warnings` (`off`, `warning`, `error`, defaulting to\n`warning`).\n\nWhen set to `error`, queries that cannot use an optimized ParadeDB scan\n(`basescan` / Top K, `aggregatescan`, or `joinscan`) raise an error\nduring execution instead of logging a warning.\n\n## Why\n\nIn CI and staging environments, users and tests need a strict mode where\nfallback to unoptimized execution paths immediately fails the query\nrather than logging warnings.\n\n## How\n\n- Replaced boolean GUCs with `paradedb.planner_warnings` (`off`,\n`warning`, `error`).\n- Added `ProcessUtility_hook` interception in\n`pg_search/src/postgres/planner_warnings.rs` to track `EXPLAIN` queries\nvia thread-local state, in order to allow `EXPLAIN` to be rendered\nrather than erroring.\n- Updated `emit_planner_warnings()` in\n`pg_search/src/postgres/planner_warnings.rs` to suppress messages when\n`off`, raise `pgrx::error!` when `error` (downgraded to `pgrx::warning!`\nduring `EXPLAIN`), and emit `pgrx::warning!` when `warning`.\n\n## Tests\n\nAdded regression tests in\n`pg_search/tests/pg_regress/sql/topk_validation.sql` verifying `off`,\n`warning`, and `error` modes, including `EXPLAIN` behavior under `error`\nmode.",
+          "timestamp": "2026-08-25T14:59:37-07:00",
+          "tree_id": "480847b82dfbf0a193e27ad23329081e9eaa55b1",
+          "url": "https://github.com/paradedb/paradedb/commit/39a2eec5d040dde203ab335772bea9a43e26f378"
+        },
+        "date": 1787699806778,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - cpu",
+            "value": 23.199614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.971259462453443, max cpu: 42.687748, count: 59271"
+          },
+          {
+            "name": "Aggregate Scan - Subscriber - mem",
+            "value": 49.23046875,
+            "unit": "median mem",
+            "extra": "avg mem: 49.088042502868184, max mem: 63.67578125, count: 59271"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 4.6421666,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.6057442245097273, max cpu: 4.6421666, count: 59271"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.21875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.197262230897067, max mem: 17.21875, count: 59271"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.657933,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.764670092250168, max cpu: 9.397944, count: 59271"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.56640625,
+            "unit": "median mem",
+            "extra": "avg mem: 21.55680963814513, max mem: 21.640625, count: 59271"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 7646,
+            "unit": "median pages",
+            "extra": "avg pages: 7149.9974186364325, max pages: 10561.0, count: 59271"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 59.734375,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 55.85935483309713, max relation_size:MB: 82.5078125, count: 59271"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 63,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 60.46260397158813, max segment_count: 87.0, count: 59271"
+          },
+          {
+            "name": "Insert value - Publisher - cpu",
+            "value": 4.6829267,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.4105734463103943, max cpu: 4.6875, count: 59271"
+          },
+          {
+            "name": "Insert value - Publisher - mem",
+            "value": 17.25390625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.23576051895109, max mem: 17.25390625, count: 59271"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - cpu",
+            "value": 23.210833,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.085836406314748, max cpu: 52.173912, count: 59271"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - mem",
+            "value": 48.3671875,
+            "unit": "median mem",
+            "extra": "avg mem: 48.34653586650723, max mem: 62.87109375, count: 59271"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - cpu",
+            "value": 23.166023,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.69771692239668, max cpu: 42.687748, count: 59271"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - mem",
+            "value": 46.3125,
+            "unit": "median mem",
+            "extra": "avg mem: 46.21691323012097, max mem: 56.97265625, count: 59271"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 103.46278381347656,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 197.9696810762689, max replication_lag:MB: 870.1846389770508, count: 59271"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - cpu",
+            "value": 23.210833,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.089016387414937, max cpu: 42.687748, count: 59271"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - mem",
+            "value": 48.32421875,
+            "unit": "median mem",
+            "extra": "avg mem: 48.372498183660646, max mem: 63.4609375, count: 59271"
+          },
+          {
+            "name": "Update 1..50 - Publisher - cpu",
+            "value": 9.261939,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.984737300860685, max cpu: 32.605534, count: 59271"
+          },
+          {
+            "name": "Update 1..50 - Publisher - mem",
+            "value": 17.65234375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.437652767584485, max mem: 17.78515625, count: 59271"
+          },
+          {
+            "name": "Update 51..100 - Publisher - cpu",
+            "value": 9.253012,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.888528808554307, max cpu: 32.668934, count: 59271"
+          },
+          {
+            "name": "Update 51..100 - Publisher - mem",
+            "value": 17.66796875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.54989759694876, max mem: 17.78125, count: 59271"
           }
         ]
       }
