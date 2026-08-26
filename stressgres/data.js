@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787716885771,
+  "lastUpdate": 1787716894079,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -153098,6 +153098,66 @@ window.BENCHMARK_DATA = {
             "value": 20.746164931375823,
             "unit": "median tps",
             "extra": "avg tps: 20.873090688695548, max tps: 34.30028936067107, count: 59315"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787716877297,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 79.94546370702969,
+            "unit": "median tps",
+            "extra": "avg tps: 79.68251044955194, max tps: 84.51909685348181, count: 59301"
+          },
+          {
+            "name": "Delete value - Primary - tps",
+            "value": 510.32529220805884,
+            "unit": "median tps",
+            "extra": "avg tps: 544.4754292560394, max tps: 6057.421325454647, count: 59301"
+          },
+          {
+            "name": "Insert value - Primary - tps",
+            "value": 926.6747776363038,
+            "unit": "median tps",
+            "extra": "avg tps: 899.0860490503187, max tps: 1428.4738842119068, count: 59301"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 198.02246489548745,
+            "unit": "median tps",
+            "extra": "avg tps: 195.53662843154365, max tps: 214.14086238833295, count: 59301"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 224.93335993144302,
+            "unit": "median tps",
+            "extra": "avg tps: 307.4938345059782, max tps: 1856.7550605859176, count: 118602"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 21.166198537561296,
+            "unit": "median tps",
+            "extra": "avg tps: 21.301391626819175, max tps: 34.082161594298086, count: 59301"
           }
         ]
       }
