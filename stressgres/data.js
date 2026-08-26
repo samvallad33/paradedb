@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787776192624,
+  "lastUpdate": 1787776199929,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -294126,6 +294126,66 @@ window.BENCHMARK_DATA = {
             "value": 167,
             "unit": "median segment_count",
             "extra": "avg segment_count: 194.83820039385319, max segment_count: 358.0, count: 59413"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7496549a2eb2813a246fdb3ab4a55f4b88d335e0",
+          "message": "fix: keep negative NUMERIC(p>18) values sortable in the index (#6053)\n\n## Ticket(s) Closed\n\n- Closes #6051\n\n## What\n\nThis PR fixes TopN ordering and range pushdown for negative values in\n`NumericBytes` fast fields (`NUMERIC` with precision > 18 or no\nprecision). Positive values were fine, and `NUMERIC(18,0)` was fine,\nsince that goes through `Numeric64`.\n\n## Why\n\n`decimal-bytes` stored a negative mantissa as bitwise-inverted BCD with\nno terminator. When a shorter mantissa is a prefix of a longer one, the\nshorter one sorts first in byte order, but it's the larger number:\n`-49990` (`B6 66`) came before `-49999` (`B6 66 6F`). TopN,\n`paradedb.range`, heap-filter pushdown, and `numrange` bounds all\ncompare those bytes directly.\n\n## How\n\nThe encoding fix is paradedb/decimal-bytes#19, released as `0.5.0`.\nNegative digits are nine's-complemented and end with a `0xFF`\nterminator. The old layout still decodes, and `Decimal::to_legacy_bytes`\nproduces it.\n\nThe two layouts don't sort together, so an index has to stay on one of\nthem. Same as #5245 did for datetimes, the choice follows the index's\n`created_by_version`. Indexes created before `0.25.5` keep writing and\nquerying the old layout, so existing rows and new rows stay comparable\n(and the ordering bug stays until `REINDEX`). Indexes built by `0.25.5`\nor later use the fixed layout. `query::numeric::decimal_to_index_bytes`\nis the one place that picks, and it's threaded through query terms,\nrange bounds, the index write path, and `numrange` bounds.\n\nPlease note that:\n- The gate is `0.25.5`, the version `main` carries after the `0.25.4`\nrelease. If that release doesn't ship this fix, the constant has to\nmove.\n- A JoinScan between a legacy index and a rebuilt one on a `NUMERIC(p >\n18)` key won't match negative values until both are rebuilt.\n\n## Tests\n\n- `issue_6051` regress test: TopN asc/desc, unbounded `numeric`,\n`numeric(30,10)` fractions with shared prefixes, `paradedb.range` (no\nrows outside the range), heap-filter pushdown, equality, rows inserted\nafter the build, and `numrange` containment and intersection. The\n`numeric(18,0)` column serves as the reference for the counts and\norderings.\n- Unit test in `query/numeric.rs` for the layout choice by version.\n- The legacy layout itself is covered in the crate. The regress test\nonly builds indexes with this version, so the legacy write path isn't\ncovered end to end here.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-26T13:10:55-07:00",
+          "tree_id": "da74bd02a844e8537199b293cd0cee2de98718f7",
+          "url": "https://github.com/paradedb/paradedb/commit/7496549a2eb2813a246fdb3ab4a55f4b88d335e0"
+        },
+        "date": 1787776196466,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - cpu",
+            "value": 23.369036,
+            "unit": "median cpu",
+            "extra": "avg cpu: 20.94778405196705, max cpu: 33.7011, count: 59396"
+          },
+          {
+            "name": "Aggregate Scan - Primary - mem",
+            "value": 44.92578125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.59691644586756, max mem: 44.93359375, count: 59396"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 18.795889,
+            "unit": "median cpu",
+            "extra": "avg cpu: 19.65181717831078, max cpu: 42.942345, count: 59396"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 102.35546875,
+            "unit": "median mem",
+            "extra": "avg mem: 101.27667563103996, max mem: 102.41796875, count: 59396"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 25972,
+            "unit": "median block_count",
+            "extra": "avg block_count: 24657.768688127147, max block_count: 28726.0, count: 59396"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 169,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 196.42278941342852, max segment_count: 360.0, count: 59396"
           }
         ]
       }
