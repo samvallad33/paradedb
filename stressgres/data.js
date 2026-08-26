@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787717689145,
+  "lastUpdate": 1787718588631,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -106290,6 +106290,54 @@ window.BENCHMARK_DATA = {
             "value": 2184.103826250711,
             "unit": "median tps",
             "extra": "avg tps: 2134.869618745618, max tps: 2347.006695474963, count: 59423"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787718585357,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 1401.952550709846,
+            "unit": "median tps",
+            "extra": "avg tps: 1413.1788339423142, max tps: 1519.1257202323497, count: 59428"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - tps",
+            "value": 2.7167202242265733,
+            "unit": "median tps",
+            "extra": "avg tps: 2.9745747130508895, max tps: 5.122148633991724, count: 59428"
+          },
+          {
+            "name": "Single Insert - Primary - tps",
+            "value": 1878.823747490036,
+            "unit": "median tps",
+            "extra": "avg tps: 1877.1805359882383, max tps: 1912.406787017366, count: 59428"
+          },
+          {
+            "name": "Single Update - Primary - tps",
+            "value": 2167.8871497014125,
+            "unit": "median tps",
+            "extra": "avg tps: 2125.5368006245963, max tps: 2363.566174355049, count: 59428"
           }
         ]
       }
