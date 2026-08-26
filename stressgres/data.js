@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719477826,
+  "lastUpdate": 1787719486055,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -153308,6 +153308,66 @@ window.BENCHMARK_DATA = {
             "value": 21.166198537561296,
             "unit": "median tps",
             "extra": "avg tps: 21.301391626819175, max tps: 34.082161594298086, count: 59301"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719482089,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 79.92992694294475,
+            "unit": "median tps",
+            "extra": "avg tps: 79.60596680481133, max tps: 86.33362871079353, count: 59303"
+          },
+          {
+            "name": "Delete value - Primary - tps",
+            "value": 522.1176748823583,
+            "unit": "median tps",
+            "extra": "avg tps: 562.5675913360598, max tps: 5574.192711033785, count: 59303"
+          },
+          {
+            "name": "Insert value - Primary - tps",
+            "value": 939.0054851286845,
+            "unit": "median tps",
+            "extra": "avg tps: 919.2701411879522, max tps: 1057.249304984731, count: 59303"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 198.22986709964766,
+            "unit": "median tps",
+            "extra": "avg tps: 195.8663192944646, max tps: 217.5864629371842, count: 59303"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 223.77409869247447,
+            "unit": "median tps",
+            "extra": "avg tps: 311.08139123574284, max tps: 1871.2018794398753, count: 118606"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 21.444512106210418,
+            "unit": "median tps",
+            "extra": "avg tps: 21.36419536468288, max tps: 34.440833437861265, count: 59303"
           }
         ]
       }
