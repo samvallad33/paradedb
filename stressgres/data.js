@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787777600600,
+  "lastUpdate": 1787777616170,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -299928,6 +299928,96 @@ window.BENCHMARK_DATA = {
             "value": 44.65234375,
             "unit": "median mem",
             "extra": "avg mem: 45.3846149960869, max mem: 52.39453125, count: 58777"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7496549a2eb2813a246fdb3ab4a55f4b88d335e0",
+          "message": "fix: keep negative NUMERIC(p>18) values sortable in the index (#6053)\n\n## Ticket(s) Closed\n\n- Closes #6051\n\n## What\n\nThis PR fixes TopN ordering and range pushdown for negative values in\n`NumericBytes` fast fields (`NUMERIC` with precision > 18 or no\nprecision). Positive values were fine, and `NUMERIC(18,0)` was fine,\nsince that goes through `Numeric64`.\n\n## Why\n\n`decimal-bytes` stored a negative mantissa as bitwise-inverted BCD with\nno terminator. When a shorter mantissa is a prefix of a longer one, the\nshorter one sorts first in byte order, but it's the larger number:\n`-49990` (`B6 66`) came before `-49999` (`B6 66 6F`). TopN,\n`paradedb.range`, heap-filter pushdown, and `numrange` bounds all\ncompare those bytes directly.\n\n## How\n\nThe encoding fix is paradedb/decimal-bytes#19, released as `0.5.0`.\nNegative digits are nine's-complemented and end with a `0xFF`\nterminator. The old layout still decodes, and `Decimal::to_legacy_bytes`\nproduces it.\n\nThe two layouts don't sort together, so an index has to stay on one of\nthem. Same as #5245 did for datetimes, the choice follows the index's\n`created_by_version`. Indexes created before `0.25.5` keep writing and\nquerying the old layout, so existing rows and new rows stay comparable\n(and the ordering bug stays until `REINDEX`). Indexes built by `0.25.5`\nor later use the fixed layout. `query::numeric::decimal_to_index_bytes`\nis the one place that picks, and it's threaded through query terms,\nrange bounds, the index write path, and `numrange` bounds.\n\nPlease note that:\n- The gate is `0.25.5`, the version `main` carries after the `0.25.4`\nrelease. If that release doesn't ship this fix, the constant has to\nmove.\n- A JoinScan between a legacy index and a rebuilt one on a `NUMERIC(p >\n18)` key won't match negative values until both are rebuilt.\n\n## Tests\n\n- `issue_6051` regress test: TopN asc/desc, unbounded `numeric`,\n`numeric(30,10)` fractions with shared prefixes, `paradedb.range` (no\nrows outside the range), heap-filter pushdown, equality, rows inserted\nafter the build, and `numrange` containment and intersection. The\n`numeric(18,0)` column serves as the reference for the counts and\norderings.\n- Unit test in `query/numeric.rs` for the layout choice by version.\n- The legacy layout itself is covered in the crate. The regress test\nonly builds indexes with this version, so the legacy write path isn't\ncovered end to end here.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-26T13:10:55-07:00",
+          "tree_id": "da74bd02a844e8537199b293cd0cee2de98718f7",
+          "url": "https://github.com/paradedb/paradedb/commit/7496549a2eb2813a246fdb3ab4a55f4b88d335e0"
+        },
+        "date": 1787777605788,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Partition Index Sizes - Primary - partition_index_size:MB",
+            "value": 56.2109375,
+            "unit": "median partition_index_size:MB",
+            "extra": "avg partition_index_size:MB: 59.558100560734175, max partition_index_size:MB: 90.1484375, count: 58896"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - cpu",
+            "value": 23.460411,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.267257848857653, max cpu: 33.267326, count: 58896"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - mem",
+            "value": 45.60546875,
+            "unit": "median mem",
+            "extra": "avg mem: 45.48376229391639, max mem: 51.86328125, count: 58896"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - cpu",
+            "value": 23.59882,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.974890776117455, max cpu: 42.909386, count: 58896"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - mem",
+            "value": 58.26953125,
+            "unit": "median mem",
+            "extra": "avg mem: 59.69816876623625, max mem: 81.3515625, count: 58896"
+          },
+          {
+            "name": "Partitioned Writes - Primary - cpu",
+            "value": 9.490856,
+            "unit": "median cpu",
+            "extra": "avg cpu: 11.756469965626971, max cpu: 28.585608, count: 58896"
+          },
+          {
+            "name": "Partitioned Writes - Primary - mem",
+            "value": 53.33984375,
+            "unit": "median mem",
+            "extra": "avg mem: 49.55592630972392, max mem: 66.58984375, count: 58896"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - cpu",
+            "value": 23.587223,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.91389444450355, max cpu: 39.008533, count: 58896"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - mem",
+            "value": 53.96875,
+            "unit": "median mem",
+            "extra": "avg mem: 53.40628077458571, max mem: 62.00390625, count: 58896"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - cpu",
+            "value": 23.460411,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.194725619290157, max cpu: 33.300297, count: 58896"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - mem",
+            "value": 45.1953125,
+            "unit": "median mem",
+            "extra": "avg mem: 44.93550747822433, max mem: 51.12109375, count: 58896"
           }
         ]
       }
