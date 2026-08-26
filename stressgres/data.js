@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719525426,
+  "lastUpdate": 1787772766847,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -293882,6 +293882,126 @@ window.BENCHMARK_DATA = {
             "value": 7.349085922044844,
             "unit": "median tps",
             "extra": "avg tps: 25.324585805187667, max tps: 755.038941133389, count: 57426"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5ceb58750221e6fb8878ece1863a66e08115e328",
+          "message": "fix: minimize stressgres runtime image (#6109)\n\n## What\n\n- build Stressgres in a dedicated Rust builder stage and copy only\nruntime artifacts into a Debian slim image\n- copy the native `psql` binary without the Perl-based\n`postgresql-client-common` runtime dependency\n- use `/symbols/stressgres` as the architecture-neutral Antithesis\nbinary path\n- exclude nested Cargo `target` directories from Docker build contexts\n- publish `latest` alongside the commit SHA tag\n\n## Why\n\nThe existing single-stage image retained Rust, Cargo sources, the C\ntoolchain, development headers, and build intermediates. Besides making\neach tag large, Docker scanners attributed build-only findings such as\nthe `linux-libc-dev` kernel CVEs to the runtime image.\n\n## Validation\n\n- built `docker/Dockerfile.stressgres` successfully on arm64\n- ran `/symbols/stressgres --version` in the final image\n- ran `psql --version` and verified `flock`, suites, and Antithesis\ndrivers\n- Trivy critical/high scan: 3 critical and 12 high, down from 4 critical\nand 156 high in the Rust builder base; remaining critical findings are\nDebian slim `perl-base`\n- `actionlint .github/workflows/publish-stressgres-docker.yml`\n- `shellcheck stressgres/suites/antithesis/*.sh`\n- repository pre-commit hooks",
+          "timestamp": "2026-08-26T15:14:24-04:00",
+          "tree_id": "87f4b2fd23a9b75cf24b7694877587af36eb7fd1",
+          "url": "https://github.com/paradedb/paradedb/commit/5ceb58750221e6fb8878ece1863a66e08115e328"
+        },
+        "date": 1787772756927,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 185.2566953430936,
+            "unit": "median tps",
+            "extra": "avg tps: 186.34193303247636, max tps: 228.53244256910088, count: 57412"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - tps",
+            "value": 355.3036865776883,
+            "unit": "median tps",
+            "extra": "avg tps: 356.081986299905, max tps: 514.1356483726673, count: 57412"
+          },
+          {
+            "name": "Delete values - Primary - tps",
+            "value": 3991.20269947481,
+            "unit": "median tps",
+            "extra": "avg tps: 3982.8701918909524, max tps: 4356.1151782352335, count: 57412"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - tps",
+            "value": 191.24657815499341,
+            "unit": "median tps",
+            "extra": "avg tps: 192.36876991975564, max tps: 236.95242436414821, count: 57412"
+          },
+          {
+            "name": "Insert value A - Primary - tps",
+            "value": 3405.335745891314,
+            "unit": "median tps",
+            "extra": "avg tps: 3393.045701054695, max tps: 3808.6935268429825, count: 57412"
+          },
+          {
+            "name": "Insert value B - Primary - tps",
+            "value": 3386.747013837329,
+            "unit": "median tps",
+            "extra": "avg tps: 3383.351375159639, max tps: 3466.7808871348834, count: 57412"
+          },
+          {
+            "name": "JoinScan - Primary - tps",
+            "value": 164.6217246249917,
+            "unit": "median tps",
+            "extra": "avg tps: 165.27276826376936, max tps: 188.230217116512, count: 57412"
+          },
+          {
+            "name": "Normal Base Scan - Primary - tps",
+            "value": 295.13997840429533,
+            "unit": "median tps",
+            "extra": "avg tps: 296.95546883794134, max tps: 390.5462522697066, count: 57412"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - tps",
+            "value": 535.792237917624,
+            "unit": "median tps",
+            "extra": "avg tps: 535.7407632733673, max tps: 602.2087189759794, count: 57412"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - tps",
+            "value": 614.9485732943567,
+            "unit": "median tps",
+            "extra": "avg tps: 614.2335044457574, max tps: 716.4113130480574, count: 57412"
+          },
+          {
+            "name": "Rotate join keys - Primary - tps",
+            "value": 1277.5239411021973,
+            "unit": "median tps",
+            "extra": "avg tps: 1277.6830837155633, max tps: 1307.3152787394786, count: 57412"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - tps",
+            "value": 366.489803824622,
+            "unit": "median tps",
+            "extra": "avg tps: 373.3398177607217, max tps: 575.5728015784201, count: 57412"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 564.1513039460816,
+            "unit": "median tps",
+            "extra": "avg tps: 564.0667696357384, max tps: 644.3933915503729, count: 57412"
+          },
+          {
+            "name": "Update joined rows - Primary - tps",
+            "value": 2331.109426812644,
+            "unit": "median tps",
+            "extra": "avg tps: 2330.390127671514, max tps: 2592.2360801242894, count: 57412"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 1763.1831432810036,
+            "unit": "median tps",
+            "extra": "avg tps: 1774.653688065445, max tps: 2136.424657354029, count: 57412"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 36.33109895854314,
+            "unit": "median tps",
+            "extra": "avg tps: 37.49939970276205, max tps: 809.7428256785645, count: 57412"
           }
         ]
       }
