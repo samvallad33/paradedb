@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787777881304,
+  "lastUpdate": 1787777891220,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -296602,6 +296602,234 @@ window.BENCHMARK_DATA = {
             "value": 28.40234375,
             "unit": "median mem",
             "extra": "avg mem: 28.22595654545217, max mem: 28.6484375, count: 57412"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7496549a2eb2813a246fdb3ab4a55f4b88d335e0",
+          "message": "fix: keep negative NUMERIC(p>18) values sortable in the index (#6053)\n\n## Ticket(s) Closed\n\n- Closes #6051\n\n## What\n\nThis PR fixes TopN ordering and range pushdown for negative values in\n`NumericBytes` fast fields (`NUMERIC` with precision > 18 or no\nprecision). Positive values were fine, and `NUMERIC(18,0)` was fine,\nsince that goes through `Numeric64`.\n\n## Why\n\n`decimal-bytes` stored a negative mantissa as bitwise-inverted BCD with\nno terminator. When a shorter mantissa is a prefix of a longer one, the\nshorter one sorts first in byte order, but it's the larger number:\n`-49990` (`B6 66`) came before `-49999` (`B6 66 6F`). TopN,\n`paradedb.range`, heap-filter pushdown, and `numrange` bounds all\ncompare those bytes directly.\n\n## How\n\nThe encoding fix is paradedb/decimal-bytes#19, released as `0.5.0`.\nNegative digits are nine's-complemented and end with a `0xFF`\nterminator. The old layout still decodes, and `Decimal::to_legacy_bytes`\nproduces it.\n\nThe two layouts don't sort together, so an index has to stay on one of\nthem. Same as #5245 did for datetimes, the choice follows the index's\n`created_by_version`. Indexes created before `0.25.5` keep writing and\nquerying the old layout, so existing rows and new rows stay comparable\n(and the ordering bug stays until `REINDEX`). Indexes built by `0.25.5`\nor later use the fixed layout. `query::numeric::decimal_to_index_bytes`\nis the one place that picks, and it's threaded through query terms,\nrange bounds, the index write path, and `numrange` bounds.\n\nPlease note that:\n- The gate is `0.25.5`, the version `main` carries after the `0.25.4`\nrelease. If that release doesn't ship this fix, the constant has to\nmove.\n- A JoinScan between a legacy index and a rebuilt one on a `NUMERIC(p >\n18)` key won't match negative values until both are rebuilt.\n\n## Tests\n\n- `issue_6051` regress test: TopN asc/desc, unbounded `numeric`,\n`numeric(30,10)` fractions with shared prefixes, `paradedb.range` (no\nrows outside the range), heap-filter pushdown, equality, rows inserted\nafter the build, and `numrange` containment and intersection. The\n`numeric(18,0)` column serves as the reference for the counts and\norderings.\n- Unit test in `query/numeric.rs` for the layout choice by version.\n- The legacy layout itself is covered in the crate. The regress test\nonly builds indexes with this version, so the legacy write path isn't\ncovered end to end here.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-26T13:10:55-07:00",
+          "tree_id": "da74bd02a844e8537199b293cd0cee2de98718f7",
+          "url": "https://github.com/paradedb/paradedb/commit/7496549a2eb2813a246fdb3ab4a55f4b88d335e0"
+        },
+        "date": 1787777886512,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - cpu",
+            "value": 9.261939,
+            "unit": "median cpu",
+            "extra": "avg cpu: 7.9845521201714424, max cpu: 18.58664, count: 57390"
+          },
+          {
+            "name": "Aggregate Scan - Primary - mem",
+            "value": 41.66015625,
+            "unit": "median mem",
+            "extra": "avg mem: 41.56908712591479, max mem: 41.76953125, count: 57390"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - cpu",
+            "value": 9.279845,
+            "unit": "median cpu",
+            "extra": "avg cpu: 8.621348348648121, max cpu: 19.009901, count: 57390"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - mem",
+            "value": 39.62109375,
+            "unit": "median mem",
+            "extra": "avg mem: 39.585803071637045, max mem: 39.75390625, count: 57390"
+          },
+          {
+            "name": "Delete values - Primary - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.754413420218941, max cpu: 9.320388, count: 57390"
+          },
+          {
+            "name": "Delete values - Primary - mem",
+            "value": 20.69140625,
+            "unit": "median mem",
+            "extra": "avg mem: 20.690833074686356, max mem: 20.69140625, count: 57390"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - cpu",
+            "value": 9.248554,
+            "unit": "median cpu",
+            "extra": "avg cpu: 7.674546758391221, max cpu: 14.257426, count: 57390"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - mem",
+            "value": 37.77734375,
+            "unit": "median mem",
+            "extra": "avg mem: 37.70417197573619, max mem: 37.875, count: 57390"
+          },
+          {
+            "name": "Insert value A - Primary - cpu",
+            "value": 4.6421666,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.6884910731458, max cpu: 9.324915, count: 57390"
+          },
+          {
+            "name": "Insert value A - Primary - mem",
+            "value": 40.39453125,
+            "unit": "median mem",
+            "extra": "avg mem: 39.36257759409305, max mem: 40.84765625, count: 57390"
+          },
+          {
+            "name": "Insert value B - Primary - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.6903771798820895, max cpu: 9.284333, count: 57390"
+          },
+          {
+            "name": "Insert value B - Primary - mem",
+            "value": 40.35546875,
+            "unit": "median mem",
+            "extra": "avg mem: 39.57188548200906, max mem: 40.53125, count: 57390"
+          },
+          {
+            "name": "JoinScan - Primary - cpu",
+            "value": 9.343065,
+            "unit": "median cpu",
+            "extra": "avg cpu: 11.398698676475272, max cpu: 23.233301, count: 57390"
+          },
+          {
+            "name": "JoinScan - Primary - mem",
+            "value": 59.109375,
+            "unit": "median mem",
+            "extra": "avg mem: 59.106565549311725, max mem: 60.03125, count: 57390"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 6456,
+            "unit": "median block_count",
+            "extra": "avg block_count: 6520.7101411395715, max block_count: 12882.0, count: 57390"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 68,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 62.096288552012545, max segment_count: 81.0, count: 57390"
+          },
+          {
+            "name": "Normal Base Scan - Primary - cpu",
+            "value": 9.275363,
+            "unit": "median cpu",
+            "extra": "avg cpu: 8.345574218349183, max cpu: 18.731707, count: 57390"
+          },
+          {
+            "name": "Normal Base Scan - Primary - mem",
+            "value": 36.4609375,
+            "unit": "median mem",
+            "extra": "avg mem: 36.41909495338909, max mem: 36.6015625, count: 57390"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - cpu",
+            "value": 4.653417,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.597273981734741, max cpu: 4.678363, count: 57390"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - mem",
+            "value": 35.29296875,
+            "unit": "median mem",
+            "extra": "avg mem: 35.20747755216501, max mem: 35.38671875, count: 57390"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - cpu",
+            "value": 4.6511626,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.28074880091333, max cpu: 14.0214205, count: 57390"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - mem",
+            "value": 35.18359375,
+            "unit": "median mem",
+            "extra": "avg mem: 35.187226310659526, max mem: 35.4140625, count: 57390"
+          },
+          {
+            "name": "Rotate join keys - Primary - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.734429358524051, max cpu: 9.338522, count: 57390"
+          },
+          {
+            "name": "Rotate join keys - Primary - mem",
+            "value": 24.69921875,
+            "unit": "median mem",
+            "extra": "avg mem: 24.683432163704477, max mem: 24.8046875, count: 57390"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - cpu",
+            "value": 9.261939,
+            "unit": "median cpu",
+            "extra": "avg cpu: 7.770410993712092, max cpu: 18.568666, count: 57390"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - mem",
+            "value": 37.05078125,
+            "unit": "median mem",
+            "extra": "avg mem: 36.98039823466632, max mem: 37.22265625, count: 57390"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - cpu",
+            "value": 4.653417,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.355183828703045, max cpu: 14.257426, count: 57390"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - mem",
+            "value": 36.21484375,
+            "unit": "median mem",
+            "extra": "avg mem: 36.173833093744555, max mem: 36.375, count: 57390"
+          },
+          {
+            "name": "Update joined rows - Primary - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.579956204052212, max cpu: 4.68979, count: 57390"
+          },
+          {
+            "name": "Update joined rows - Primary - mem",
+            "value": 28.78515625,
+            "unit": "median mem",
+            "extra": "avg mem: 28.802505540490504, max mem: 28.9375, count: 57390"
+          },
+          {
+            "name": "Update random values - Primary - cpu",
+            "value": 4.6511626,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.676217490679682, max cpu: 9.235209, count: 57390"
+          },
+          {
+            "name": "Update random values - Primary - mem",
+            "value": 38.7421875,
+            "unit": "median mem",
+            "extra": "avg mem: 39.570254985080155, max mem: 41.99609375, count: 57390"
+          },
+          {
+            "name": "Vacuum - Primary - cpu",
+            "value": 4.6332045,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.7939548838173036, max cpu: 4.6943765, count: 57390"
+          },
+          {
+            "name": "Vacuum - Primary - mem",
+            "value": 28.5078125,
+            "unit": "median mem",
+            "extra": "avg mem: 28.407096184004182, max mem: 29.2734375, count: 57390"
           }
         ]
       }
