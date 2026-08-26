@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787716935469,
+  "lastUpdate": 1787716943940,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -294588,6 +294588,90 @@ window.BENCHMARK_DATA = {
             "value": 570.6443375261458,
             "unit": "median tps",
             "extra": "avg tps: 578.2166930017419, max tps: 624.4200285070449, count: 55408"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787716881140,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - tps",
+            "value": 206.13821596243028,
+            "unit": "median tps",
+            "extra": "avg tps: 205.29834487269798, max tps: 219.73786620646638, count: 55338"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - tps",
+            "value": 209.9900445360227,
+            "unit": "median tps",
+            "extra": "avg tps: 208.80941671699983, max tps: 227.90858725063674, count: 55338"
+          },
+          {
+            "name": "JoinScan - Subscriber - tps",
+            "value": 185.1248968962115,
+            "unit": "median tps",
+            "extra": "avg tps: 183.48048616683576, max tps: 200.51169438626263, count: 55338"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - tps",
+            "value": 499.8323817551741,
+            "unit": "median tps",
+            "extra": "avg tps: 494.56394144173066, max tps: 659.0675911096267, count: 55338"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - tps",
+            "value": 354.6781574062097,
+            "unit": "median tps",
+            "extra": "avg tps: 352.0895049910435, max tps: 424.520918400482, count: 55338"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - tps",
+            "value": 14.819917538622397,
+            "unit": "median tps",
+            "extra": "avg tps: 14.814076841372476, max tps: 16.278336025085586, count: 55338"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - tps",
+            "value": 673.7674592332553,
+            "unit": "median tps",
+            "extra": "avg tps: 669.4296596310322, max tps: 780.8129323132497, count: 55338"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - tps",
+            "value": 687.6480166401108,
+            "unit": "median tps",
+            "extra": "avg tps: 682.0510479575225, max tps: 785.5754484567196, count: 55338"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - tps",
+            "value": 280.2535329973073,
+            "unit": "median tps",
+            "extra": "avg tps: 278.5327585505241, max tps: 331.3799286422459, count: 55338"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - tps",
+            "value": 592.2465543001347,
+            "unit": "median tps",
+            "extra": "avg tps: 588.0909555685795, max tps: 660.8801668149658, count: 55338"
           }
         ]
       }
