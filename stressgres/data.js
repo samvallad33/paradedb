@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787772876838,
+  "lastUpdate": 1787772884573,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -292652,6 +292652,162 @@ window.BENCHMARK_DATA = {
             "value": 17.625,
             "unit": "median mem",
             "extra": "avg mem: 17.50268009828191, max mem: 17.734375, count: 59281"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5ceb58750221e6fb8878ece1863a66e08115e328",
+          "message": "fix: minimize stressgres runtime image (#6109)\n\n## What\n\n- build Stressgres in a dedicated Rust builder stage and copy only\nruntime artifacts into a Debian slim image\n- copy the native `psql` binary without the Perl-based\n`postgresql-client-common` runtime dependency\n- use `/symbols/stressgres` as the architecture-neutral Antithesis\nbinary path\n- exclude nested Cargo `target` directories from Docker build contexts\n- publish `latest` alongside the commit SHA tag\n\n## Why\n\nThe existing single-stage image retained Rust, Cargo sources, the C\ntoolchain, development headers, and build intermediates. Besides making\neach tag large, Docker scanners attributed build-only findings such as\nthe `linux-libc-dev` kernel CVEs to the runtime image.\n\n## Validation\n\n- built `docker/Dockerfile.stressgres` successfully on arm64\n- ran `/symbols/stressgres --version` in the final image\n- ran `psql --version` and verified `flock`, suites, and Antithesis\ndrivers\n- Trivy critical/high scan: 3 critical and 12 high, down from 4 critical\nand 156 high in the Rust builder base; remaining critical findings are\nDebian slim `perl-base`\n- `actionlint .github/workflows/publish-stressgres-docker.yml`\n- `shellcheck stressgres/suites/antithesis/*.sh`\n- repository pre-commit hooks",
+          "timestamp": "2026-08-26T15:14:24-04:00",
+          "tree_id": "87f4b2fd23a9b75cf24b7694877587af36eb7fd1",
+          "url": "https://github.com/paradedb/paradedb/commit/5ceb58750221e6fb8878ece1863a66e08115e328"
+        },
+        "date": 1787772881094,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - cpu",
+            "value": 23.267086,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.72169884137619, max cpu: 38.06503, count: 59222"
+          },
+          {
+            "name": "Aggregate Scan - Subscriber - mem",
+            "value": 49.39453125,
+            "unit": "median mem",
+            "extra": "avg mem: 49.02754492629428, max mem: 64.18359375, count: 59222"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 4.6806436,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.001938898439821, max cpu: 4.717445, count: 59222"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.21484375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.183487555300395, max mem: 17.21484375, count: 59222"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.6806436,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.7706963448802275, max cpu: 9.4627905, count: 59222"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.44140625,
+            "unit": "median mem",
+            "extra": "avg mem: 21.42760727115768, max mem: 21.44140625, count: 59222"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 12040,
+            "unit": "median pages",
+            "extra": "avg pages: 10803.126034244031, max pages: 20565.0, count: 59222"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 94.0625,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 84.39942267020702, max relation_size:MB: 160.6640625, count: 59222"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 76,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 70.07144304481443, max segment_count: 128.0, count: 59222"
+          },
+          {
+            "name": "Insert value - Publisher - cpu",
+            "value": 4.68979,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.320141527628065, max cpu: 4.7244096, count: 59222"
+          },
+          {
+            "name": "Insert value - Publisher - mem",
+            "value": 17.24609375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.22806439646584, max mem: 17.24609375, count: 59222"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - cpu",
+            "value": 23.30097,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.94749370368568, max cpu: 34.258522, count: 59222"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - mem",
+            "value": 48.546875,
+            "unit": "median mem",
+            "extra": "avg mem: 48.553207172271286, max mem: 61.5859375, count: 59222"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - cpu",
+            "value": 23.255816,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.68361721617347, max cpu: 38.06503, count: 59222"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - mem",
+            "value": 46.6796875,
+            "unit": "median mem",
+            "extra": "avg mem: 46.11803026377444, max mem: 58.96875, count: 59222"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 102.38616180419922,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 190.6493492466568, max replication_lag:MB: 857.1605606079102, count: 59222"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - cpu",
+            "value": 23.289665,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.92538745125002, max cpu: 38.06503, count: 59222"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - mem",
+            "value": 48.953125,
+            "unit": "median mem",
+            "extra": "avg mem: 48.784602652413795, max mem: 65.3125, count: 59222"
+          },
+          {
+            "name": "Update 1..50 - Publisher - cpu",
+            "value": 9.306834,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.842256258239066, max cpu: 32.463768, count: 59222"
+          },
+          {
+            "name": "Update 1..50 - Publisher - mem",
+            "value": 17.62890625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.606651007015973, max mem: 17.75390625, count: 59222"
+          },
+          {
+            "name": "Update 51..100 - Publisher - cpu",
+            "value": 9.306834,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.907078754490332, max cpu: 32.74854, count: 59222"
+          },
+          {
+            "name": "Update 51..100 - Publisher - mem",
+            "value": 17.64453125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.633419920489853, max mem: 17.7734375, count: 59222"
           }
         ]
       }
