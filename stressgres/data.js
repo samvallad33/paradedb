@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787773890518,
+  "lastUpdate": 1787773903895,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -106338,6 +106338,54 @@ window.BENCHMARK_DATA = {
             "value": 2167.8871497014125,
             "unit": "median tps",
             "extra": "avg tps: 2125.5368006245963, max tps: 2363.566174355049, count: 59428"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5ceb58750221e6fb8878ece1863a66e08115e328",
+          "message": "fix: minimize stressgres runtime image (#6109)\n\n## What\n\n- build Stressgres in a dedicated Rust builder stage and copy only\nruntime artifacts into a Debian slim image\n- copy the native `psql` binary without the Perl-based\n`postgresql-client-common` runtime dependency\n- use `/symbols/stressgres` as the architecture-neutral Antithesis\nbinary path\n- exclude nested Cargo `target` directories from Docker build contexts\n- publish `latest` alongside the commit SHA tag\n\n## Why\n\nThe existing single-stage image retained Rust, Cargo sources, the C\ntoolchain, development headers, and build intermediates. Besides making\neach tag large, Docker scanners attributed build-only findings such as\nthe `linux-libc-dev` kernel CVEs to the runtime image.\n\n## Validation\n\n- built `docker/Dockerfile.stressgres` successfully on arm64\n- ran `/symbols/stressgres --version` in the final image\n- ran `psql --version` and verified `flock`, suites, and Antithesis\ndrivers\n- Trivy critical/high scan: 3 critical and 12 high, down from 4 critical\nand 156 high in the Rust builder base; remaining critical findings are\nDebian slim `perl-base`\n- `actionlint .github/workflows/publish-stressgres-docker.yml`\n- `shellcheck stressgres/suites/antithesis/*.sh`\n- repository pre-commit hooks",
+          "timestamp": "2026-08-26T15:14:24-04:00",
+          "tree_id": "87f4b2fd23a9b75cf24b7694877587af36eb7fd1",
+          "url": "https://github.com/paradedb/paradedb/commit/5ceb58750221e6fb8878ece1863a66e08115e328"
+        },
+        "date": 1787773899320,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 1386.887006165763,
+            "unit": "median tps",
+            "extra": "avg tps: 1395.9602037502846, max tps: 1493.1018426507806, count: 59417"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - tps",
+            "value": 2.7516764741407442,
+            "unit": "median tps",
+            "extra": "avg tps: 3.0331418182730325, max tps: 5.162273885628325, count: 59417"
+          },
+          {
+            "name": "Single Insert - Primary - tps",
+            "value": 700.4455366376136,
+            "unit": "median tps",
+            "extra": "avg tps: 662.4429535043126, max tps: 1859.6556576140722, count: 59417"
+          },
+          {
+            "name": "Single Update - Primary - tps",
+            "value": 2169.6308950536845,
+            "unit": "median tps",
+            "extra": "avg tps: 2140.5408715491967, max tps: 2340.4214280547712, count: 59417"
           }
         ]
       }
