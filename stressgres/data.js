@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719470387,
+  "lastUpdate": 1787719477826,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -293040,6 +293040,66 @@ window.BENCHMARK_DATA = {
             "value": 167,
             "unit": "median segment_count",
             "extra": "avg segment_count: 194.6268448243946, max segment_count: 359.0, count: 59423"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719474406,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - cpu",
+            "value": 23.403217,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.04858040096657, max cpu: 33.566433, count: 59415"
+          },
+          {
+            "name": "Aggregate Scan - Primary - mem",
+            "value": 44.4296875,
+            "unit": "median mem",
+            "extra": "avg mem: 44.14931677606665, max mem: 44.578125, count: 59415"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 18.882769,
+            "unit": "median cpu",
+            "extra": "avg cpu: 19.669002113942856, max cpu: 43.351734, count: 59415"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 102.02734375,
+            "unit": "median mem",
+            "extra": "avg mem: 100.96170829651604, max mem: 102.08984375, count: 59415"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 26163,
+            "unit": "median block_count",
+            "extra": "avg block_count: 24778.527661364977, max block_count: 28988.0, count: 59415"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 167,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 194.7658672052512, max segment_count: 360.0, count: 59415"
           }
         ]
       }
