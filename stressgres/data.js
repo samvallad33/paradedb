@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787716927865,
+  "lastUpdate": 1787716935469,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -292794,6 +292794,66 @@ window.BENCHMARK_DATA = {
             "value": 169,
             "unit": "median segment_count",
             "extra": "avg segment_count: 195.56139642141764, max segment_count: 359.0, count: 59409"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787716931515,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - cpu",
+            "value": 23.414635,
+            "unit": "median cpu",
+            "extra": "avg cpu: 20.808062835604325, max cpu: 33.61681, count: 59423"
+          },
+          {
+            "name": "Aggregate Scan - Primary - mem",
+            "value": 44.44921875,
+            "unit": "median mem",
+            "extra": "avg mem: 44.20960594487825, max mem: 44.578125, count: 59423"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 18.86978,
+            "unit": "median cpu",
+            "extra": "avg cpu: 19.55402723072056, max cpu: 43.39528, count: 59423"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 102.01171875,
+            "unit": "median mem",
+            "extra": "avg mem: 101.02331122050805, max mem: 102.140625, count: 59423"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 26087,
+            "unit": "median block_count",
+            "extra": "avg block_count: 24798.512007135283, max block_count: 28794.0, count: 59423"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 167,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 194.6268448243946, max segment_count: 359.0, count: 59423"
           }
         ]
       }
