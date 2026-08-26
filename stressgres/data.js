@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787776669011,
+  "lastUpdate": 1787776685818,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -293366,6 +293366,162 @@ window.BENCHMARK_DATA = {
             "value": 17.64453125,
             "unit": "median mem",
             "extra": "avg mem: 17.633419920489853, max mem: 17.7734375, count: 59222"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7496549a2eb2813a246fdb3ab4a55f4b88d335e0",
+          "message": "fix: keep negative NUMERIC(p>18) values sortable in the index (#6053)\n\n## Ticket(s) Closed\n\n- Closes #6051\n\n## What\n\nThis PR fixes TopN ordering and range pushdown for negative values in\n`NumericBytes` fast fields (`NUMERIC` with precision > 18 or no\nprecision). Positive values were fine, and `NUMERIC(18,0)` was fine,\nsince that goes through `Numeric64`.\n\n## Why\n\n`decimal-bytes` stored a negative mantissa as bitwise-inverted BCD with\nno terminator. When a shorter mantissa is a prefix of a longer one, the\nshorter one sorts first in byte order, but it's the larger number:\n`-49990` (`B6 66`) came before `-49999` (`B6 66 6F`). TopN,\n`paradedb.range`, heap-filter pushdown, and `numrange` bounds all\ncompare those bytes directly.\n\n## How\n\nThe encoding fix is paradedb/decimal-bytes#19, released as `0.5.0`.\nNegative digits are nine's-complemented and end with a `0xFF`\nterminator. The old layout still decodes, and `Decimal::to_legacy_bytes`\nproduces it.\n\nThe two layouts don't sort together, so an index has to stay on one of\nthem. Same as #5245 did for datetimes, the choice follows the index's\n`created_by_version`. Indexes created before `0.25.5` keep writing and\nquerying the old layout, so existing rows and new rows stay comparable\n(and the ordering bug stays until `REINDEX`). Indexes built by `0.25.5`\nor later use the fixed layout. `query::numeric::decimal_to_index_bytes`\nis the one place that picks, and it's threaded through query terms,\nrange bounds, the index write path, and `numrange` bounds.\n\nPlease note that:\n- The gate is `0.25.5`, the version `main` carries after the `0.25.4`\nrelease. If that release doesn't ship this fix, the constant has to\nmove.\n- A JoinScan between a legacy index and a rebuilt one on a `NUMERIC(p >\n18)` key won't match negative values until both are rebuilt.\n\n## Tests\n\n- `issue_6051` regress test: TopN asc/desc, unbounded `numeric`,\n`numeric(30,10)` fractions with shared prefixes, `paradedb.range` (no\nrows outside the range), heap-filter pushdown, equality, rows inserted\nafter the build, and `numrange` containment and intersection. The\n`numeric(18,0)` column serves as the reference for the counts and\norderings.\n- Unit test in `query/numeric.rs` for the layout choice by version.\n- The legacy layout itself is covered in the crate. The regress test\nonly builds indexes with this version, so the legacy write path isn't\ncovered end to end here.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-26T13:10:55-07:00",
+          "tree_id": "da74bd02a844e8537199b293cd0cee2de98718f7",
+          "url": "https://github.com/paradedb/paradedb/commit/7496549a2eb2813a246fdb3ab4a55f4b88d335e0"
+        },
+        "date": 1787776673263,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - cpu",
+            "value": 23.210833,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.686040207564957, max cpu: 38.114143, count: 59245"
+          },
+          {
+            "name": "Aggregate Scan - Subscriber - mem",
+            "value": 49.60546875,
+            "unit": "median mem",
+            "extra": "avg mem: 49.43907436809013, max mem: 62.703125, count: 59245"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 4.6399226,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.330348359721051, max cpu: 4.703577, count: 59245"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.28125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.24019174877627, max mem: 17.28125, count: 59245"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.669261,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.706051522624273, max cpu: 9.407154, count: 59245"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.546875,
+            "unit": "median mem",
+            "extra": "avg mem: 21.53538820522829, max mem: 21.55078125, count: 59245"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 8868,
+            "unit": "median pages",
+            "extra": "avg pages: 8106.569060680226, max pages: 16015.0, count: 59245"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 69.28125,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 63.332570918431934, max relation_size:MB: 125.1171875, count: 59245"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 56,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 53.353295636762596, max segment_count: 87.0, count: 59245"
+          },
+          {
+            "name": "Insert value - Publisher - cpu",
+            "value": 4.644412,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.3771081808581087, max cpu: 4.7058825, count: 59245"
+          },
+          {
+            "name": "Insert value - Publisher - mem",
+            "value": 17.2578125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.248435456051144, max mem: 17.2578125, count: 59245"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - cpu",
+            "value": 23.233301,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.852172609829402, max cpu: 38.114143, count: 59245"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - mem",
+            "value": 48.6796875,
+            "unit": "median mem",
+            "extra": "avg mem: 48.610920093467804, max mem: 63.27734375, count: 59245"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - cpu",
+            "value": 23.199614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.58490034325186, max cpu: 38.114143, count: 59245"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - mem",
+            "value": 46.44921875,
+            "unit": "median mem",
+            "extra": "avg mem: 46.214162323824794, max mem: 57.078125, count: 59245"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 101.9988021850586,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 201.75901128064027, max replication_lag:MB: 886.6818771362305, count: 59245"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - cpu",
+            "value": 23.244553,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.86793215610893, max cpu: 33.349876, count: 59245"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - mem",
+            "value": 48.78125,
+            "unit": "median mem",
+            "extra": "avg mem: 48.672531569119755, max mem: 62.26953125, count: 59245"
+          },
+          {
+            "name": "Update 1..50 - Publisher - cpu",
+            "value": 9.266409,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.945763536148691, max cpu: 32.82853, count: 59245"
+          },
+          {
+            "name": "Update 1..50 - Publisher - mem",
+            "value": 17.69921875,
+            "unit": "median mem",
+            "extra": "avg mem: 17.592307565511856, max mem: 17.81640625, count: 59245"
+          },
+          {
+            "name": "Update 51..100 - Publisher - cpu",
+            "value": 9.266409,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.92973852217451, max cpu: 32.526623, count: 59245"
+          },
+          {
+            "name": "Update 51..100 - Publisher - mem",
+            "value": 17.71484375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.612697339965397, max mem: 17.8359375, count: 59245"
           }
         ]
       }
