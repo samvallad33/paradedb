@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787718596440,
+  "lastUpdate": 1787719470387,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -292642,6 +292642,42 @@ window.BENCHMARK_DATA = {
             "value": 10.497679083068222,
             "unit": "median tps",
             "extra": "avg tps: 9.117957044336245, max tps: 12.364142178084574, count: 59423"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719467133,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 7.550397901750972,
+            "unit": "median tps",
+            "extra": "avg tps: 7.030010291570203, max tps: 7.947168997829554, count: 59415"
+          },
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 10.522652732685613,
+            "unit": "median tps",
+            "extra": "avg tps: 9.125226558100398, max tps: 12.378106527976556, count: 59415"
           }
         ]
       }
