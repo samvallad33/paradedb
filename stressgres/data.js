@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719486055,
+  "lastUpdate": 1787719493478,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -185724,6 +185724,126 @@ window.BENCHMARK_DATA = {
             "value": 27.71484375,
             "unit": "median mem",
             "extra": "avg mem: 27.653032371397614, max mem: 28.26953125, count: 59301"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719490068,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - cpu",
+            "value": 14.069371,
+            "unit": "median cpu",
+            "extra": "avg cpu: 14.907935190039579, max cpu: 38.189957, count: 59303"
+          },
+          {
+            "name": "Aggregate Scan - Primary - mem",
+            "value": 41.89453125,
+            "unit": "median mem",
+            "extra": "avg mem: 41.88072931597053, max mem: 41.89453125, count: 59303"
+          },
+          {
+            "name": "Delete value - Primary - cpu",
+            "value": 4.6806436,
+            "unit": "median cpu",
+            "extra": "avg cpu: 6.521924389621688, max cpu: 28.22146, count: 59303"
+          },
+          {
+            "name": "Delete value - Primary - mem",
+            "value": 20.5078125,
+            "unit": "median mem",
+            "extra": "avg mem: 20.505946157867225, max mem: 20.5078125, count: 59303"
+          },
+          {
+            "name": "Insert value - Primary - cpu",
+            "value": 4.6966734,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.883379083652304, max cpu: 14.229248, count: 59303"
+          },
+          {
+            "name": "Insert value - Primary - mem",
+            "value": 42.48046875,
+            "unit": "median mem",
+            "extra": "avg mem: 42.45612304341686, max mem: 42.48046875, count: 59303"
+          },
+          {
+            "name": "Monitor Segment Count - Primary - block_count",
+            "value": 18677,
+            "unit": "median block_count",
+            "extra": "avg block_count: 18852.643087196262, max block_count: 36235.0, count: 59303"
+          },
+          {
+            "name": "Monitor Segment Count - Primary - cpu",
+            "value": 4.729064,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.054428965689717, max cpu: 4.729064, count: 59303"
+          },
+          {
+            "name": "Monitor Segment Count - Primary - mem",
+            "value": 21.05859375,
+            "unit": "median mem",
+            "extra": "avg mem: 21.05432383532452, max mem: 21.05859375, count: 59303"
+          },
+          {
+            "name": "Monitor Segment Count - Primary - segment_count",
+            "value": 27,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 27.167563192418594, max segment_count: 38.0, count: 59303"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - cpu",
+            "value": 9.384164,
+            "unit": "median cpu",
+            "extra": "avg cpu: 10.16456641118319, max cpu: 23.976025, count: 59303"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - mem",
+            "value": 41.30859375,
+            "unit": "median mem",
+            "extra": "avg mem: 41.280528071935656, max mem: 41.3125, count: 59303"
+          },
+          {
+            "name": "Update random values - Primary - cpu",
+            "value": 9.217475,
+            "unit": "median cpu",
+            "extra": "avg cpu: 8.050028462727298, max cpu: 28.318584, count: 118606"
+          },
+          {
+            "name": "Update random values - Primary - mem",
+            "value": 43.24609375,
+            "unit": "median mem",
+            "extra": "avg mem: 42.44973365070064, max mem: 44.1953125, count: 118606"
+          },
+          {
+            "name": "Vacuum - Primary - cpu",
+            "value": 9.402546,
+            "unit": "median cpu",
+            "extra": "avg cpu: 10.36043079577356, max cpu: 23.391813, count: 59303"
+          },
+          {
+            "name": "Vacuum - Primary - mem",
+            "value": 28.90625,
+            "unit": "median mem",
+            "extra": "avg mem: 28.53295818982598, max mem: 29.0234375, count: 59303"
           }
         ]
       }
