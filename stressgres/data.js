@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787717085603,
+  "lastUpdate": 1787717681553,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -297452,6 +297452,60 @@ window.BENCHMARK_DATA = {
             "value": 23.06302216965831,
             "unit": "median tps",
             "extra": "avg tps: 39.80369416371513, max tps: 612.1536572082701, count: 59245"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787717678168,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Replicated Deletes - Publisher - tps",
+            "value": 3864.0923765739362,
+            "unit": "median tps",
+            "extra": "avg tps: 3880.9265115040694, max tps: 4621.321680670715, count: 59246"
+          },
+          {
+            "name": "Replicated Inserts - Publisher - tps",
+            "value": 4620.529097229504,
+            "unit": "median tps",
+            "extra": "avg tps: 4655.937258101307, max tps: 7565.399618756035, count: 59246"
+          },
+          {
+            "name": "Replicated Updates - Publisher - tps",
+            "value": 95.42051460912,
+            "unit": "median tps",
+            "extra": "avg tps: 190.29621256394265, max tps: 3231.453767535233, count: 59246"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberA - tps",
+            "value": 22.93973467594727,
+            "unit": "median tps",
+            "extra": "avg tps: 39.27478153305509, max tps: 571.9622262734241, count: 59246"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberB - tps",
+            "value": 22.92524750144982,
+            "unit": "median tps",
+            "extra": "avg tps: 39.3917726767917, max tps: 579.2572242539114, count: 59246"
           }
         ]
       }
