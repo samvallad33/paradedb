@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787777616170,
+  "lastUpdate": 1787777881304,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -295112,6 +295112,126 @@ window.BENCHMARK_DATA = {
             "value": 36.33109895854314,
             "unit": "median tps",
             "extra": "avg tps: 37.49939970276205, max tps: 809.7428256785645, count: 57412"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7496549a2eb2813a246fdb3ab4a55f4b88d335e0",
+          "message": "fix: keep negative NUMERIC(p>18) values sortable in the index (#6053)\n\n## Ticket(s) Closed\n\n- Closes #6051\n\n## What\n\nThis PR fixes TopN ordering and range pushdown for negative values in\n`NumericBytes` fast fields (`NUMERIC` with precision > 18 or no\nprecision). Positive values were fine, and `NUMERIC(18,0)` was fine,\nsince that goes through `Numeric64`.\n\n## Why\n\n`decimal-bytes` stored a negative mantissa as bitwise-inverted BCD with\nno terminator. When a shorter mantissa is a prefix of a longer one, the\nshorter one sorts first in byte order, but it's the larger number:\n`-49990` (`B6 66`) came before `-49999` (`B6 66 6F`). TopN,\n`paradedb.range`, heap-filter pushdown, and `numrange` bounds all\ncompare those bytes directly.\n\n## How\n\nThe encoding fix is paradedb/decimal-bytes#19, released as `0.5.0`.\nNegative digits are nine's-complemented and end with a `0xFF`\nterminator. The old layout still decodes, and `Decimal::to_legacy_bytes`\nproduces it.\n\nThe two layouts don't sort together, so an index has to stay on one of\nthem. Same as #5245 did for datetimes, the choice follows the index's\n`created_by_version`. Indexes created before `0.25.5` keep writing and\nquerying the old layout, so existing rows and new rows stay comparable\n(and the ordering bug stays until `REINDEX`). Indexes built by `0.25.5`\nor later use the fixed layout. `query::numeric::decimal_to_index_bytes`\nis the one place that picks, and it's threaded through query terms,\nrange bounds, the index write path, and `numrange` bounds.\n\nPlease note that:\n- The gate is `0.25.5`, the version `main` carries after the `0.25.4`\nrelease. If that release doesn't ship this fix, the constant has to\nmove.\n- A JoinScan between a legacy index and a rebuilt one on a `NUMERIC(p >\n18)` key won't match negative values until both are rebuilt.\n\n## Tests\n\n- `issue_6051` regress test: TopN asc/desc, unbounded `numeric`,\n`numeric(30,10)` fractions with shared prefixes, `paradedb.range` (no\nrows outside the range), heap-filter pushdown, equality, rows inserted\nafter the build, and `numrange` containment and intersection. The\n`numeric(18,0)` column serves as the reference for the counts and\norderings.\n- Unit test in `query/numeric.rs` for the layout choice by version.\n- The legacy layout itself is covered in the crate. The regress test\nonly builds indexes with this version, so the legacy write path isn't\ncovered end to end here.\n\n---------\n\nCo-authored-by: paradedb-github-app[bot] <282009505+paradedb-github-app[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-26T13:10:55-07:00",
+          "tree_id": "da74bd02a844e8537199b293cd0cee2de98718f7",
+          "url": "https://github.com/paradedb/paradedb/commit/7496549a2eb2813a246fdb3ab4a55f4b88d335e0"
+        },
+        "date": 1787777869014,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 170.0844597994603,
+            "unit": "median tps",
+            "extra": "avg tps: 175.6537398768661, max tps: 220.58367680715563, count: 57390"
+          },
+          {
+            "name": "Columnar Base Scan - Primary - tps",
+            "value": 263.31546513764715,
+            "unit": "median tps",
+            "extra": "avg tps: 291.28021493353646, max tps: 521.5581445256074, count: 57390"
+          },
+          {
+            "name": "Delete values - Primary - tps",
+            "value": 4030.5244730919367,
+            "unit": "median tps",
+            "extra": "avg tps: 4028.07368292653, max tps: 4747.152714561241, count: 57390"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Primary - tps",
+            "value": 174.79247289938326,
+            "unit": "median tps",
+            "extra": "avg tps: 181.05701053210217, max tps: 226.22580545020256, count: 57390"
+          },
+          {
+            "name": "Insert value A - Primary - tps",
+            "value": 3391.597741419582,
+            "unit": "median tps",
+            "extra": "avg tps: 3400.5498994445948, max tps: 3527.5871407621553, count: 57390"
+          },
+          {
+            "name": "Insert value B - Primary - tps",
+            "value": 3373.25728178401,
+            "unit": "median tps",
+            "extra": "avg tps: 3365.100757619563, max tps: 3390.1519240435046, count: 57390"
+          },
+          {
+            "name": "JoinScan - Primary - tps",
+            "value": 153.72119404026643,
+            "unit": "median tps",
+            "extra": "avg tps: 157.4921924202801, max tps: 189.6932650621084, count: 57390"
+          },
+          {
+            "name": "Normal Base Scan - Primary - tps",
+            "value": 257.60672244611305,
+            "unit": "median tps",
+            "extra": "avg tps: 270.5013588716725, max tps: 382.5383237104521, count: 57390"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Primary - tps",
+            "value": 509.7541162611165,
+            "unit": "median tps",
+            "extra": "avg tps: 518.712344324451, max tps: 579.5886850671391, count: 57390"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Primary - tps",
+            "value": 576.7520247715049,
+            "unit": "median tps",
+            "extra": "avg tps: 590.0360894185934, max tps: 699.6380386059017, count: 57390"
+          },
+          {
+            "name": "Rotate join keys - Primary - tps",
+            "value": 1276.7423622169076,
+            "unit": "median tps",
+            "extra": "avg tps: 1277.7937041917146, max tps: 1305.2488888820858, count: 57390"
+          },
+          {
+            "name": "Score-ordered Top K Base Scan - Primary - tps",
+            "value": 299.85180047576836,
+            "unit": "median tps",
+            "extra": "avg tps: 327.1955702623523, max tps: 581.6653653917573, count: 57390"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 533.0007928020185,
+            "unit": "median tps",
+            "extra": "avg tps: 542.9634120836682, max tps: 634.4161881590342, count: 57390"
+          },
+          {
+            "name": "Update joined rows - Primary - tps",
+            "value": 2356.929111793399,
+            "unit": "median tps",
+            "extra": "avg tps: 2358.366982494532, max tps: 2408.906403234556, count: 57390"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 1743.5331598373973,
+            "unit": "median tps",
+            "extra": "avg tps: 1748.6139916554885, max tps: 2044.2774133512573, count: 57390"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 19.00441706286683,
+            "unit": "median tps",
+            "extra": "avg tps: 21.332356698113838, max tps: 536.8294530405752, count: 57390"
           }
         ]
       }
