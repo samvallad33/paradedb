@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787716902141,
+  "lastUpdate": 1787716911476,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -291288,6 +291288,54 @@ window.BENCHMARK_DATA = {
             "value": 23.153325988929407,
             "unit": "median tps",
             "extra": "avg tps: 37.667170602466484, max tps: 436.8481037290468, count: 59271"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787716879279,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - tps",
+            "value": 23.26079468499036,
+            "unit": "median tps",
+            "extra": "avg tps: 34.3177673157093, max tps: 201.6531597205595, count: 59281"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - tps",
+            "value": 23.892864796443945,
+            "unit": "median tps",
+            "extra": "avg tps: 38.759132286850054, max tps: 452.58815116659366, count: 59281"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - tps",
+            "value": 26.79605074236982,
+            "unit": "median tps",
+            "extra": "avg tps: 45.243961577203734, max tps: 604.0294722781264, count: 59281"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - tps",
+            "value": 23.815654118877728,
+            "unit": "median tps",
+            "extra": "avg tps: 38.543052832397365, max tps: 448.846645507895, count: 59281"
           }
         ]
       }
