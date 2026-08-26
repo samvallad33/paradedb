@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787773913143,
+  "lastUpdate": 1787774532031,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -153518,6 +153518,66 @@ window.BENCHMARK_DATA = {
             "value": 21.444512106210418,
             "unit": "median tps",
             "extra": "avg tps: 21.36419536468288, max tps: 34.440833437861265, count: 59303"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "68aafd2099b79fb770f5c8bb75d23ba234388688",
+          "message": "fix(ci): limit stressgres benchmark concurrency (#6110)\n\n## What\\n\\nLimit the stressgres benchmark matrix to four concurrent\njobs.\\n\\n## Why\\n\\nAvoid exhausting regional capacity for the large\nbare-metal benchmark runners.\\n\\nThis ports the exact patch from\nparadedb-enterprise commit `12b167f4fc1bfb8d136e22f8b9af239a98a5d485` so\nit can flow back through the normal upstream sync process.\n\nSigned-off-by: Philippe Noël <21990816+philippemnoel@users.noreply.github.com>",
+          "timestamp": "2026-08-26T15:35:34-04:00",
+          "tree_id": "2ff5dc506a11a2753d36fad44fba1670bceea7ae",
+          "url": "https://github.com/paradedb/paradedb/commit/68aafd2099b79fb770f5c8bb75d23ba234388688"
+        },
+        "date": 1787774528329,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 78.58672387492058,
+            "unit": "median tps",
+            "extra": "avg tps: 78.43199576184946, max tps: 85.48051030016642, count: 59324"
+          },
+          {
+            "name": "Delete value - Primary - tps",
+            "value": 236.35926436994183,
+            "unit": "median tps",
+            "extra": "avg tps: 295.78274434220896, max tps: 5583.47048216575, count: 59324"
+          },
+          {
+            "name": "Insert value - Primary - tps",
+            "value": 875.317801032286,
+            "unit": "median tps",
+            "extra": "avg tps: 864.8515373875262, max tps: 1410.250106000707, count: 59324"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 189.2047746590639,
+            "unit": "median tps",
+            "extra": "avg tps: 187.72920796269807, max tps: 203.25487403812534, count: 59324"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 220.30784600986243,
+            "unit": "median tps",
+            "extra": "avg tps: 218.26211051187857, max tps: 1247.7185612406374, count: 118648"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 20.264340779228448,
+            "unit": "median tps",
+            "extra": "avg tps: 20.205816118046783, max tps: 34.206267005431854, count: 59324"
           }
         ]
       }
