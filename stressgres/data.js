@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787716919811,
+  "lastUpdate": 1787716927865,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -292456,6 +292456,42 @@ window.BENCHMARK_DATA = {
             "value": 10.453873121712524,
             "unit": "median tps",
             "extra": "avg tps: 9.073040876011309, max tps: 12.29009028082879, count: 59409"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787716904797,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 7.4092232382549685,
+            "unit": "median tps",
+            "extra": "avg tps: 6.896418245544349, max tps: 7.811220114444635, count: 59423"
+          },
+          {
+            "name": "Bulk Update - Primary - tps",
+            "value": 10.497679083068222,
+            "unit": "median tps",
+            "extra": "avg tps: 9.117957044336245, max tps: 12.364142178084574, count: 59423"
           }
         ]
       }
