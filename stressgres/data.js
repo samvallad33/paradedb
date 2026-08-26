@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787716878131,
+  "lastUpdate": 1787716885771,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -295848,6 +295848,96 @@ window.BENCHMARK_DATA = {
             "value": 45.140625,
             "unit": "median mem",
             "extra": "avg mem: 45.62473375089348, max mem: 52.0234375, count: 58759"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5f2980cd6628b4d280b7135328751299df8c06",
+          "message": "chore: Revert \"feat: partitioned index build execution (#6077)\" (#6096)\n\nThis reverts commit 400f131982cfe708ae9b48e8fcf9f4a1839c3215, which\nregressed index builds.",
+          "timestamp": "2026-08-25T20:43:22-07:00",
+          "tree_id": "eaa24ed4310f534fcd047d4b758730e91108ca62",
+          "url": "https://github.com/paradedb/paradedb/commit/4f5f2980cd6628b4d280b7135328751299df8c06"
+        },
+        "date": 1787716881900,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Partition Index Sizes - Primary - partition_index_size:MB",
+            "value": 57.4140625,
+            "unit": "median partition_index_size:MB",
+            "extra": "avg partition_index_size:MB: 57.67440798962712, max partition_index_size:MB: 91.5703125, count: 58759"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - cpu",
+            "value": 23.323614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.32478502584775, max cpu: 37.963425, count: 58759"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - mem",
+            "value": 45.125,
+            "unit": "median mem",
+            "extra": "avg mem: 46.108594202058406, max mem: 53.6953125, count: 58759"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.999770131748008, max cpu: 42.70885, count: 58759"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - mem",
+            "value": 54.4921875,
+            "unit": "median mem",
+            "extra": "avg mem: 59.901410515304036, max mem: 91.046875, count: 58759"
+          },
+          {
+            "name": "Partitioned Writes - Primary - cpu",
+            "value": 9.476802,
+            "unit": "median cpu",
+            "extra": "avg cpu: 11.545178350417485, max cpu: 32.95733, count: 58759"
+          },
+          {
+            "name": "Partitioned Writes - Primary - mem",
+            "value": 47.82421875,
+            "unit": "median mem",
+            "extra": "avg mem: 51.01602513817032, max mem: 67.1328125, count: 58759"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.919787601630507, max cpu: 42.70885, count: 58759"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - mem",
+            "value": 52.46484375,
+            "unit": "median mem",
+            "extra": "avg mem: 52.664827342938956, max mem: 61.33203125, count: 58759"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - cpu",
+            "value": 23.323614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.25425859458281, max cpu: 37.963425, count: 58759"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - mem",
+            "value": 44.5546875,
+            "unit": "median mem",
+            "extra": "avg mem: 45.453299640799706, max mem: 52.4765625, count: 58759"
           }
         ]
       }
