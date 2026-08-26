@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719493478,
+  "lastUpdate": 1787719502631,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -297100,6 +297100,60 @@ window.BENCHMARK_DATA = {
             "value": 36.749721595957226,
             "unit": "median tps",
             "extra": "avg tps: 57.74750952469455, max tps: 557.3614705645685, count: 58759"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719494402,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Partition-pruned Base Scan - Primary - tps",
+            "value": 34.96870689145715,
+            "unit": "median tps",
+            "extra": "avg tps: 54.64925566196981, max tps: 541.7663051087648, count: 58777"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - tps",
+            "value": 18.412200411293004,
+            "unit": "median tps",
+            "extra": "avg tps: 29.63469864234088, max tps: 362.0476666964211, count: 58777"
+          },
+          {
+            "name": "Partitioned Writes - Primary - tps",
+            "value": 81.59638578761323,
+            "unit": "median tps",
+            "extra": "avg tps: 144.89464670172853, max tps: 1189.7223906100014, count: 58777"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - tps",
+            "value": 19.272326636662754,
+            "unit": "median tps",
+            "extra": "avg tps: 29.75444763882001, max tps: 279.11750543050675, count: 58777"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - tps",
+            "value": 36.70416780903186,
+            "unit": "median tps",
+            "extra": "avg tps: 57.79624099881484, max tps: 553.6934409359634, count: 58777"
           }
         ]
       }
