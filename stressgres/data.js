@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787773903895,
+  "lastUpdate": 1787773913143,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -137182,6 +137182,108 @@ window.BENCHMARK_DATA = {
             "value": 51.96484375,
             "unit": "median mem",
             "extra": "avg mem: 50.88843800481255, max mem: 51.96484375, count: 59428"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "21990816+philippemnoel@users.noreply.github.com",
+            "name": "Philippe Noël",
+            "username": "philippemnoel"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5ceb58750221e6fb8878ece1863a66e08115e328",
+          "message": "fix: minimize stressgres runtime image (#6109)\n\n## What\n\n- build Stressgres in a dedicated Rust builder stage and copy only\nruntime artifacts into a Debian slim image\n- copy the native `psql` binary without the Perl-based\n`postgresql-client-common` runtime dependency\n- use `/symbols/stressgres` as the architecture-neutral Antithesis\nbinary path\n- exclude nested Cargo `target` directories from Docker build contexts\n- publish `latest` alongside the commit SHA tag\n\n## Why\n\nThe existing single-stage image retained Rust, Cargo sources, the C\ntoolchain, development headers, and build intermediates. Besides making\neach tag large, Docker scanners attributed build-only findings such as\nthe `linux-libc-dev` kernel CVEs to the runtime image.\n\n## Validation\n\n- built `docker/Dockerfile.stressgres` successfully on arm64\n- ran `/symbols/stressgres --version` in the final image\n- ran `psql --version` and verified `flock`, suites, and Antithesis\ndrivers\n- Trivy critical/high scan: 3 critical and 12 high, down from 4 critical\nand 156 high in the Rust builder base; remaining critical findings are\nDebian slim `perl-base`\n- `actionlint .github/workflows/publish-stressgres-docker.yml`\n- `shellcheck stressgres/suites/antithesis/*.sh`\n- repository pre-commit hooks",
+          "timestamp": "2026-08-26T15:14:24-04:00",
+          "tree_id": "87f4b2fd23a9b75cf24b7694877587af36eb7fd1",
+          "url": "https://github.com/paradedb/paradedb/commit/5ceb58750221e6fb8878ece1863a66e08115e328"
+        },
+        "date": 1787773908914,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Background Merger - Primary - background_merging",
+            "value": 0,
+            "unit": "median background_merging",
+            "extra": "avg background_merging: 0.05819883198411229, max background_merging: 2.0, count: 59417"
+          },
+          {
+            "name": "Background Merger - Primary - cpu",
+            "value": 4.7244096,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.741894941333987, max cpu: 9.692075, count: 59417"
+          },
+          {
+            "name": "Background Merger - Primary - mem",
+            "value": 19.5546875,
+            "unit": "median mem",
+            "extra": "avg mem: 19.55264611506387, max mem: 19.6640625, count: 59417"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 4.7244096,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.042374034263493, max cpu: 28.628231, count: 59417"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 51.69921875,
+            "unit": "median mem",
+            "extra": "avg mem: 49.35230217414629, max mem: 51.8046875, count: 59417"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 63954,
+            "unit": "median block_count",
+            "extra": "avg block_count: 63638.46128212464, max block_count: 63954.0, count: 59417"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 67,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 65.63362337378192, max segment_count: 106.0, count: 59417"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - cpu",
+            "value": 23.622047,
+            "unit": "median cpu",
+            "extra": "avg cpu: 24.07927496035783, max cpu: 34.059807, count: 59417"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - mem",
+            "value": 83.53515625,
+            "unit": "median mem",
+            "extra": "avg mem: 79.42766748152886, max mem: 83.765625, count: 59417"
+          },
+          {
+            "name": "Single Insert - Primary - cpu",
+            "value": 4.729064,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.544193221691046, max cpu: 32.941177, count: 59417"
+          },
+          {
+            "name": "Single Insert - Primary - mem",
+            "value": 64.38671875,
+            "unit": "median mem",
+            "extra": "avg mem: 64.8255775256871, max mem: 103.8671875, count: 59417"
+          },
+          {
+            "name": "Single Update - Primary - cpu",
+            "value": 4.7197638,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.868847532084051, max cpu: 9.657948, count: 59417"
+          },
+          {
+            "name": "Single Update - Primary - mem",
+            "value": 33.3359375,
+            "unit": "median mem",
+            "extra": "avg mem: 33.284988999886394, max mem: 33.359375, count: 59417"
           }
         ]
       }
