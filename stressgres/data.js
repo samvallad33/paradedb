@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719502631,
+  "lastUpdate": 1787719509608,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -297606,6 +297606,96 @@ window.BENCHMARK_DATA = {
             "value": 44.5546875,
             "unit": "median mem",
             "extra": "avg mem: 45.453299640799706, max mem: 52.4765625, count: 58759"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719506395,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Partition Index Sizes - Primary - partition_index_size:MB",
+            "value": 56.6640625,
+            "unit": "median partition_index_size:MB",
+            "extra": "avg partition_index_size:MB: 59.773017081511476, max partition_index_size:MB: 92.8125, count: 58777"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - cpu",
+            "value": 23.323614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.341454373385464, max cpu: 33.168808, count: 58777"
+          },
+          {
+            "name": "Partition-pruned Base Scan - Primary - mem",
+            "value": 45.23828125,
+            "unit": "median mem",
+            "extra": "avg mem: 45.34964788788557, max mem: 52.6328125, count: 58777"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.984559512086502, max cpu: 38.076355, count: 58777"
+          },
+          {
+            "name": "Partitioned Top K Base Scan - Primary - mem",
+            "value": 54,
+            "unit": "median mem",
+            "extra": "avg mem: 59.4877864640931, max mem: 89.9765625, count: 58777"
+          },
+          {
+            "name": "Partitioned Writes - Primary - cpu",
+            "value": 9.425626,
+            "unit": "median cpu",
+            "extra": "avg cpu: 11.73326942074918, max cpu: 33.03835, count: 58777"
+          },
+          {
+            "name": "Partitioned Writes - Primary - mem",
+            "value": 53.0078125,
+            "unit": "median mem",
+            "extra": "avg mem: 50.389799515010125, max mem: 65.109375, count: 58777"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - cpu",
+            "value": 23.44895,
+            "unit": "median cpu",
+            "extra": "avg cpu: 22.899875842401002, max cpu: 33.0546, count: 58777"
+          },
+          {
+            "name": "Postgres Aggregate over Partitioned Base Scans - Primary - mem",
+            "value": 52.40234375,
+            "unit": "median mem",
+            "extra": "avg mem: 52.345452940776156, max mem: 60.828125, count: 58777"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - cpu",
+            "value": 23.323614,
+            "unit": "median cpu",
+            "extra": "avg cpu: 21.245916335110586, max cpu: 32.860634, count: 58777"
+          },
+          {
+            "name": "Postgres Join over Partitioned Base Scans - Primary - mem",
+            "value": 44.65234375,
+            "unit": "median mem",
+            "extra": "avg mem: 45.3846149960869, max mem: 52.39453125, count: 58777"
           }
         ]
       }
