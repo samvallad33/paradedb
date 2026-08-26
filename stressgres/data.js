@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787717681553,
+  "lastUpdate": 1787717689145,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -298120,6 +298120,108 @@ window.BENCHMARK_DATA = {
             "value": 47.1171875,
             "unit": "median mem",
             "extra": "avg mem: 45.57879633829859, max mem: 56.921875, count: 59245"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787717685664,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Replicated Deletes - Publisher - cpu",
+            "value": 4.678363,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.616088888702183, max cpu: 4.7595444, count: 59246"
+          },
+          {
+            "name": "Replicated Deletes - Publisher - mem",
+            "value": 17.2109375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.19043176438072, max mem: 17.2109375, count: 59246"
+          },
+          {
+            "name": "Replicated Inserts - Publisher - cpu",
+            "value": 4.6829267,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.4272350857846074, max cpu: 4.8144436, count: 59246"
+          },
+          {
+            "name": "Replicated Inserts - Publisher - mem",
+            "value": 17.14453125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.135558400039667, max mem: 17.14453125, count: 59246"
+          },
+          {
+            "name": "Replicated Updates - Publisher - cpu",
+            "value": 9.37958,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.561055757449619, max cpu: 32.925037, count: 59246"
+          },
+          {
+            "name": "Replicated Updates - Publisher - mem",
+            "value": 17.515625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.537924567164872, max mem: 17.71875, count: 59246"
+          },
+          {
+            "name": "Subscriber A Documents - SubscriberA - document_count",
+            "value": 10001,
+            "unit": "median document_count",
+            "extra": "avg document_count: 10000.922458900179, max document_count: 10002.0, count: 59246"
+          },
+          {
+            "name": "Subscriber B Documents - SubscriberB - document_count",
+            "value": 10001,
+            "unit": "median document_count",
+            "extra": "avg document_count: 10000.921479931134, max document_count: 10002.0, count: 59246"
+          },
+          {
+            "name": "Subscriber Lag - Publisher - subscriber_count",
+            "value": 2,
+            "unit": "median subscriber_count",
+            "extra": "avg subscriber_count: 2.0, max subscriber_count: 2.0, count: 59246"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberA - cpu",
+            "value": 18.595642,
+            "unit": "median cpu",
+            "extra": "avg cpu: 16.63795725070693, max cpu: 32.98969, count: 59246"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberA - mem",
+            "value": 46.81640625,
+            "unit": "median mem",
+            "extra": "avg mem: 45.3013896771512, max mem: 56.6171875, count: 59246"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberB - cpu",
+            "value": 18.55969,
+            "unit": "median cpu",
+            "extra": "avg cpu: 16.532440749260108, max cpu: 33.0546, count: 59246"
+          },
+          {
+            "name": "Subscriber Top K Base Scan - SubscriberB - mem",
+            "value": 46.88671875,
+            "unit": "median mem",
+            "extra": "avg mem: 45.364170484610774, max mem: 56.4453125, count: 59246"
           }
         ]
       }
