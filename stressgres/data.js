@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787719509608,
+  "lastUpdate": 1787719517908,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -295446,6 +295446,90 @@ window.BENCHMARK_DATA = {
             "value": 592.2465543001347,
             "unit": "median tps",
             "extra": "avg tps: 588.0909555685795, max tps: 660.8801668149658, count: 55338"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "stuhood@paradedb.com",
+            "name": "Stu Hood",
+            "username": "stuhood"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955b576c94a5e2cf7884c05a543e3497a187a910",
+          "message": "fix: Switch to `ExplainOneQuery_hook` to reduce side effects in planner errors (#6095)\n\nPicking #6082 demonstrated that using `ProcessUtility_hook_type` was\nprobably too broad, and had side-effects when unrelated errors were\nbeing thrown.\n\nThis change narrows our hook to `EXPLAIN` to reduce those side-effects.",
+          "timestamp": "2026-08-25T20:48:11-07:00",
+          "tree_id": "62769f34ae52ba025f6b34cf8d63f679cdfd89b7",
+          "url": "https://github.com/paradedb/paradedb/commit/955b576c94a5e2cf7884c05a543e3497a187a910"
+        },
+        "date": 1787719486769,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - tps",
+            "value": 206.7790598685265,
+            "unit": "median tps",
+            "extra": "avg tps: 207.25318145463118, max tps: 224.46693331667893, count: 55434"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - tps",
+            "value": 210.35691710937095,
+            "unit": "median tps",
+            "extra": "avg tps: 210.63287629137417, max tps: 225.4511158957349, count: 55434"
+          },
+          {
+            "name": "JoinScan - Subscriber - tps",
+            "value": 185.5922060324901,
+            "unit": "median tps",
+            "extra": "avg tps: 185.762576727519, max tps: 206.13956707217463, count: 55434"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - tps",
+            "value": 515.3982511201887,
+            "unit": "median tps",
+            "extra": "avg tps: 516.7842207525133, max tps: 673.0088079966564, count: 55434"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - tps",
+            "value": 362.8741710944013,
+            "unit": "median tps",
+            "extra": "avg tps: 363.95924390613624, max tps: 451.5922383649789, count: 55434"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - tps",
+            "value": 14.806671476837197,
+            "unit": "median tps",
+            "extra": "avg tps: 14.823978845437386, max tps: 16.548044560392363, count: 55434"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - tps",
+            "value": 694.2613997746885,
+            "unit": "median tps",
+            "extra": "avg tps: 693.233745602655, max tps: 812.7689489396084, count: 55434"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - tps",
+            "value": 698.9130330903295,
+            "unit": "median tps",
+            "extra": "avg tps: 697.2849569586193, max tps: 809.9317661939045, count: 55434"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - tps",
+            "value": 282.80688689938563,
+            "unit": "median tps",
+            "extra": "avg tps: 283.24156613705435, max tps: 333.67694485843657, count: 55434"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - tps",
+            "value": 602.9607257236801,
+            "unit": "median tps",
+            "extra": "avg tps: 602.0556214103318, max tps: 668.6074111119877, count: 55434"
           }
         ]
       }
