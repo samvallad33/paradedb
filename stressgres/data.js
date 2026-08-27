@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787798110111,
+  "lastUpdate": 1787798117492,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -137632,6 +137632,108 @@ window.BENCHMARK_DATA = {
             "value": 100.046875,
             "unit": "median mem",
             "extra": "avg mem: 99.50504630165376, max mem: 104.5078125, count: 59410"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ming.ying.nyc@gmail.com",
+            "name": "Ming",
+            "username": "rebasedming"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0cc4b3cd1b329346523724d359ffde565388a9c2",
+          "message": "feat: Efficiently intersect non-ParadeDB bitmap scans with ParadeDB custom scan (#6088)\n\n# Ticket(s) Closed\n\n- Closes #5702 \n\n## What\n\nToday, a query with a predicate that cannot be answered by the ParadeDB\nindex falls back to a heap filter, which evaluates the predicate against\nthe heap for every tuple emitted by the ParadeDB index. While correct,\nthis is extremely expensive over large result sets.\n\nA better path exists: if that predicate can be answered by another\nindex, and the index can produce a bitmap, we can attach the bitmap scan\nas a child of our custom scan and use the bitmap to cheaply reject\ntuples.\n\nTo illustrate:\n\n```sql\n-- SETUP\nCREATE TABLE items (id bigint, description text, location point);\nINSERT INTO items\nSELECT i, 'blue running shoes ' || i, point(i % 1000, i / 1000)\nFROM generate_series(1, 1000000) i;\nCREATE INDEX items_paradedb ON items USING paradedb (id, description) WITH (key_field = 'id');\nCREATE INDEX items_location ON items USING gist (location);\n```\n\nOn `main`, the following query which uses a GIST predicate touches 6k+\nbuffers:\n\n```sql\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT count(*) FROM items\nWHERE description === 'shoes' AND location <@ circle(point(500, 500), 20);\n\n                                                                                                              QUERY PLAN                                                                                                              \n--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n Custom Scan (ParadeDB Aggregate Scan) on items  (cost=0.00..0.00 rows=1 width=8) (actual time=77.336..77.337 rows=1.00 loops=1)\n   Index: items_paradedb\n   Tantivy Query: {\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"term\":{\"field\":\"description\",\"value\":\"shoes\"}}}},{\"heap_filter\":{\"indexed_query\":\"all\",\"field_filters\":[{\"heap_filter\":\"(location <@ '<(500,500),20>'::circle)\"}]}}]}}\n     Applies to Aggregates: COUNT(*)\n     Aggregate Definition: {\"0\":{\"value_count\":{\"field\":\"ctid\",\"missing\":null}}}\n   Buffers: shared hit=6007\n Planning:\n   Buffers: shared hit=141 read=12\n Planning Time: 8.093 ms\n Execution Time: 77.498 ms\n(10 rows)\n```\n\nOn this branch, we drop down to~300 buffers (20x improvement):\n\n```sql\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT count(*) FROM items\nWHERE description === 'shoes' AND location <@ circle(point(500, 500), 20);\n\n                                                                                                                                   QUERY PLAN                                                                                                                                    \n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n Custom Scan (ParadeDB Aggregate Scan) on items  (cost=40.03..40.03 rows=1 width=8) (actual time=8.226..8.227 rows=1 loops=1)\n   Bitmap Intersection: items_location\n   Bitmap Exact Candidates: 1257\n   Bitmap Lossy Blocks: 0\n   Bitmap Recheck Blocks: 0\n   Index: items_paradedb\n   Tantivy Query: {\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"term\":{\"field\":\"description\",\"value\":\"shoes\"}}}},{\"heap_filter\":{\"indexed_query\":\"all\",\"field_filters\":[],\"recheck_filters\":[{\"heap_filter\":\"(location <@ '<(500,500),20>'::circle)\"}],\"uses_tid_bitmap\":true}}]}}\n     Applies to Aggregates: COUNT(*)\n     Aggregate Definition: {\"0\":{\"value_count\":{\"field\":\"ctid\",\"missing\":null}}}\n   Buffers: shared hit=295 read=25\n   ->  Bitmap Index Scan on items_location  (cost=0.00..39.78 rows=1000 width=0) (actual time=0.109..0.109 rows=1257 loops=1)\n         Index Cond: (location <@ '<(500,500),20>'::circle)\n         Buffers: shared read=25\n Planning:\n   Buffers: shared hit=119 read=26\n Planning Time: 2.676 ms\n Execution Time: 8.299 ms\n(17 rows)\n```\n\n## Why\n\nCustomer request\n\n## How\n\nImplemented:\n\n1. Find heap filters\nThe planner identifies AND-connected predicates that ParadeDB would\notherwise evaluate against heap rows.\n\n2. Require CTID sorting\nBitmap intersection is enabled only when the ParadeDB index is sorted by\nCTID.\n\n3. Choose a PostgreSQL index\nThe planner finds a profitable btree, GIN, or GiST index that covers a\nheap filter.\n\n4. Rewrite the query\nCovered filters are marked as bitmap-backed. Exact matches require\nrechecking only on lossy or recheck pages.\n\n5. Attach the bitmap plan\nThe PostgreSQL bitmap index scan becomes a child of the ParadeDB custom\nscan.\n\n6. Build the TIDBitmap\nThe leader executes the child index scan once and fills a native\nTIDBitmap. For parallel scans, it gets built inside DSA shared memory.\n\n7. Create per-segment cursors\nEach Tantivy segment receives its own forward-only cursor over the\nbitmap. Parallel workers attach to shared cursors.\n\n8. Stream the intersection\nTantivy matches are produced in CTID order and merged with the bitmap.\nMissing CTIDs are rejected immediately; exact matches avoid redundant\nheap-filter evaluation.\n\n## Tests\n\nSee regression test\n\n## Opens\n\n- #6089 BitmapAnd over multiple indexes\n- #6090 BitmapOr for indexable disjunctions\n- #6091 ScalarArrayOpExpr (`= ANY`) matching",
+          "timestamp": "2026-08-26T18:17:42-07:00",
+          "tree_id": "1e2571350f55e9e9ddeb4ad8aa41d913a74c8f26",
+          "url": "https://github.com/paradedb/paradedb/commit/0cc4b3cd1b329346523724d359ffde565388a9c2"
+        },
+        "date": 1787798114234,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Background Merger - Primary - background_merging",
+            "value": 0,
+            "unit": "median background_merging",
+            "extra": "avg background_merging: 0.0843501236978071, max background_merging: 2.0, count: 59419"
+          },
+          {
+            "name": "Background Merger - Primary - cpu",
+            "value": 4.7105007,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.750066003088978, max cpu: 9.667674, count: 59419"
+          },
+          {
+            "name": "Background Merger - Primary - mem",
+            "value": 19.8125,
+            "unit": "median mem",
+            "extra": "avg mem: 19.81120424969286, max mem: 19.81640625, count: 59419"
+          },
+          {
+            "name": "Bulk Update - Primary - cpu",
+            "value": 4.712813,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.905047891090417, max cpu: 28.08386, count: 59419"
+          },
+          {
+            "name": "Bulk Update - Primary - mem",
+            "value": 51.52734375,
+            "unit": "median mem",
+            "extra": "avg mem: 48.30476724353742, max mem: 51.52734375, count: 59419"
+          },
+          {
+            "name": "Monitor Index Size - Primary - block_count",
+            "value": 52151,
+            "unit": "median block_count",
+            "extra": "avg block_count: 51971.73239199583, max block_count: 52151.0, count: 59419"
+          },
+          {
+            "name": "Monitor Index Size - Primary - segment_count",
+            "value": 71,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 69.33489287938201, max segment_count: 105.0, count: 59419"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - cpu",
+            "value": 23.59882,
+            "unit": "median cpu",
+            "extra": "avg cpu: 24.028856637999212, max cpu: 33.990894, count: 59419"
+          },
+          {
+            "name": "Postgres Seq Scan + Sort Fallback - Primary - mem",
+            "value": 84.046875,
+            "unit": "median mem",
+            "extra": "avg mem: 80.50789776576096, max mem: 84.2578125, count: 59419"
+          },
+          {
+            "name": "Single Insert - Primary - cpu",
+            "value": 4.7151275,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.064550977923211, max cpu: 27.87996, count: 59419"
+          },
+          {
+            "name": "Single Insert - Primary - mem",
+            "value": 52.4609375,
+            "unit": "median mem",
+            "extra": "avg mem: 51.645530378014605, max mem: 52.4609375, count: 59419"
+          },
+          {
+            "name": "Single Update - Primary - cpu",
+            "value": 4.717445,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.821002313293736, max cpu: 28.304668, count: 59419"
+          },
+          {
+            "name": "Single Update - Primary - mem",
+            "value": 52.01171875,
+            "unit": "median mem",
+            "extra": "avg mem: 51.614693690149615, max mem: 52.01171875, count: 59419"
           }
         ]
       }
