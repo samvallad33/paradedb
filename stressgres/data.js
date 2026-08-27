@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787794556626,
+  "lastUpdate": 1787794563578,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -298488,6 +298488,90 @@ window.BENCHMARK_DATA = {
             "value": 556.3873597057659,
             "unit": "median tps",
             "extra": "avg tps: 556.7161088774052, max tps: 610.6399788812512, count: 55295"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ming.ying.nyc@gmail.com",
+            "name": "Ming",
+            "username": "rebasedming"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0cc4b3cd1b329346523724d359ffde565388a9c2",
+          "message": "feat: Efficiently intersect non-ParadeDB bitmap scans with ParadeDB custom scan (#6088)\n\n# Ticket(s) Closed\n\n- Closes #5702 \n\n## What\n\nToday, a query with a predicate that cannot be answered by the ParadeDB\nindex falls back to a heap filter, which evaluates the predicate against\nthe heap for every tuple emitted by the ParadeDB index. While correct,\nthis is extremely expensive over large result sets.\n\nA better path exists: if that predicate can be answered by another\nindex, and the index can produce a bitmap, we can attach the bitmap scan\nas a child of our custom scan and use the bitmap to cheaply reject\ntuples.\n\nTo illustrate:\n\n```sql\n-- SETUP\nCREATE TABLE items (id bigint, description text, location point);\nINSERT INTO items\nSELECT i, 'blue running shoes ' || i, point(i % 1000, i / 1000)\nFROM generate_series(1, 1000000) i;\nCREATE INDEX items_paradedb ON items USING paradedb (id, description) WITH (key_field = 'id');\nCREATE INDEX items_location ON items USING gist (location);\n```\n\nOn `main`, the following query which uses a GIST predicate touches 6k+\nbuffers:\n\n```sql\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT count(*) FROM items\nWHERE description === 'shoes' AND location <@ circle(point(500, 500), 20);\n\n                                                                                                              QUERY PLAN                                                                                                              \n--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n Custom Scan (ParadeDB Aggregate Scan) on items  (cost=0.00..0.00 rows=1 width=8) (actual time=77.336..77.337 rows=1.00 loops=1)\n   Index: items_paradedb\n   Tantivy Query: {\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"term\":{\"field\":\"description\",\"value\":\"shoes\"}}}},{\"heap_filter\":{\"indexed_query\":\"all\",\"field_filters\":[{\"heap_filter\":\"(location <@ '<(500,500),20>'::circle)\"}]}}]}}\n     Applies to Aggregates: COUNT(*)\n     Aggregate Definition: {\"0\":{\"value_count\":{\"field\":\"ctid\",\"missing\":null}}}\n   Buffers: shared hit=6007\n Planning:\n   Buffers: shared hit=141 read=12\n Planning Time: 8.093 ms\n Execution Time: 77.498 ms\n(10 rows)\n```\n\nOn this branch, we drop down to~300 buffers (20x improvement):\n\n```sql\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT count(*) FROM items\nWHERE description === 'shoes' AND location <@ circle(point(500, 500), 20);\n\n                                                                                                                                   QUERY PLAN                                                                                                                                    \n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n Custom Scan (ParadeDB Aggregate Scan) on items  (cost=40.03..40.03 rows=1 width=8) (actual time=8.226..8.227 rows=1 loops=1)\n   Bitmap Intersection: items_location\n   Bitmap Exact Candidates: 1257\n   Bitmap Lossy Blocks: 0\n   Bitmap Recheck Blocks: 0\n   Index: items_paradedb\n   Tantivy Query: {\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"term\":{\"field\":\"description\",\"value\":\"shoes\"}}}},{\"heap_filter\":{\"indexed_query\":\"all\",\"field_filters\":[],\"recheck_filters\":[{\"heap_filter\":\"(location <@ '<(500,500),20>'::circle)\"}],\"uses_tid_bitmap\":true}}]}}\n     Applies to Aggregates: COUNT(*)\n     Aggregate Definition: {\"0\":{\"value_count\":{\"field\":\"ctid\",\"missing\":null}}}\n   Buffers: shared hit=295 read=25\n   ->  Bitmap Index Scan on items_location  (cost=0.00..39.78 rows=1000 width=0) (actual time=0.109..0.109 rows=1257 loops=1)\n         Index Cond: (location <@ '<(500,500),20>'::circle)\n         Buffers: shared read=25\n Planning:\n   Buffers: shared hit=119 read=26\n Planning Time: 2.676 ms\n Execution Time: 8.299 ms\n(17 rows)\n```\n\n## Why\n\nCustomer request\n\n## How\n\nImplemented:\n\n1. Find heap filters\nThe planner identifies AND-connected predicates that ParadeDB would\notherwise evaluate against heap rows.\n\n2. Require CTID sorting\nBitmap intersection is enabled only when the ParadeDB index is sorted by\nCTID.\n\n3. Choose a PostgreSQL index\nThe planner finds a profitable btree, GIN, or GiST index that covers a\nheap filter.\n\n4. Rewrite the query\nCovered filters are marked as bitmap-backed. Exact matches require\nrechecking only on lossy or recheck pages.\n\n5. Attach the bitmap plan\nThe PostgreSQL bitmap index scan becomes a child of the ParadeDB custom\nscan.\n\n6. Build the TIDBitmap\nThe leader executes the child index scan once and fills a native\nTIDBitmap. For parallel scans, it gets built inside DSA shared memory.\n\n7. Create per-segment cursors\nEach Tantivy segment receives its own forward-only cursor over the\nbitmap. Parallel workers attach to shared cursors.\n\n8. Stream the intersection\nTantivy matches are produced in CTID order and merged with the bitmap.\nMissing CTIDs are rejected immediately; exact matches avoid redundant\nheap-filter evaluation.\n\n## Tests\n\nSee regression test\n\n## Opens\n\n- #6089 BitmapAnd over multiple indexes\n- #6090 BitmapOr for indexable disjunctions\n- #6091 ScalarArrayOpExpr (`= ANY`) matching",
+          "timestamp": "2026-08-26T18:17:42-07:00",
+          "tree_id": "1e2571350f55e9e9ddeb4ad8aa41d913a74c8f26",
+          "url": "https://github.com/paradedb/paradedb/commit/0cc4b3cd1b329346523724d359ffde565388a9c2"
+        },
+        "date": 1787794549384,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - tps",
+            "value": 202.96018975403817,
+            "unit": "median tps",
+            "extra": "avg tps: 201.7042663683953, max tps: 220.92929343920136, count: 55268"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - tps",
+            "value": 206.7459256051103,
+            "unit": "median tps",
+            "extra": "avg tps: 205.1569369661543, max tps: 225.68255431727718, count: 55268"
+          },
+          {
+            "name": "JoinScan - Subscriber - tps",
+            "value": 182.76299179790692,
+            "unit": "median tps",
+            "extra": "avg tps: 181.89877079936917, max tps: 202.00428760479525, count: 55268"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - tps",
+            "value": 484.58774912337134,
+            "unit": "median tps",
+            "extra": "avg tps: 478.65078129268903, max tps: 685.6371568082768, count: 55268"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - tps",
+            "value": 347.29504964386626,
+            "unit": "median tps",
+            "extra": "avg tps: 343.84203288361465, max tps: 438.39981678991825, count: 55268"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - tps",
+            "value": 14.934896976590688,
+            "unit": "median tps",
+            "extra": "avg tps: 14.932552638555268, max tps: 16.616153449406116, count: 55268"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - tps",
+            "value": 654.6906184883139,
+            "unit": "median tps",
+            "extra": "avg tps: 648.654451929304, max tps: 777.2161747308662, count: 55268"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - tps",
+            "value": 660.1328875192671,
+            "unit": "median tps",
+            "extra": "avg tps: 654.769958419999, max tps: 807.6168886997783, count: 55268"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - tps",
+            "value": 271.9369476264459,
+            "unit": "median tps",
+            "extra": "avg tps: 269.42401867975497, max tps: 327.8990133041746, count: 55268"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - tps",
+            "value": 574.5576883561705,
+            "unit": "median tps",
+            "extra": "avg tps: 570.4647111448155, max tps: 655.0354540458869, count: 55268"
           }
         ]
       }
