@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787779704298,
+  "lastUpdate": 1787789592185,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -153788,6 +153788,66 @@ window.BENCHMARK_DATA = {
             "value": 21.48261208842912,
             "unit": "median tps",
             "extra": "avg tps: 21.346905409104558, max tps: 34.10130611412548, count: 59313"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mdashti@gmail.com",
+            "name": "Moe",
+            "username": "mdashti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6966a36e4682c93c00dccd249774ab7e2e8c1702",
+          "message": "feat: partitioned index build execution with one segment per partition (#6086)\n\n## Ticket(s) Closed\n\n- Closes #6081\n- Closes #5737\n\n## What\n\nThis PR re-lands the partitioned `CREATE INDEX` execution of #6077\n(reverted in #6096) with the build writing one segment per partition,\nwhichever workers scanned its rows, and prefetching heap blocks ahead of\nthe re-fetch drain. The first commit is #6077 unchanged; the two after\nit are the change.\n\n## Why\n\n#6077 drained each worker's own heap slice partition by partition, so a\nparallel build wrote `partitions x participants` segments. On the\nbenchmark the partitioned indexes went from 40 to 384 segments (48\npartitions x 8 participants), the indexes grew (+10%\n`stackoverflow_posts_idx`, +50% `users_idx` at 1M), and at 1M 48 of 126\nqueries got over 1.2x slower (joins up to 2.5x), none faster.\n\n## How\n\nThe two-pass plan from #5737. Phase 1 routes each scanned row on the\nleader's kd-tree and appends its ctid to a per-partition spill file: a\n`SharedFileSet` in the DSM for a parallel build (the leader initializes\nit in place before the workers spawn, so cleanup rides on the segment's\ndetach), plain temporary `BufFile`s for a serial one. Postgres decides\nwhich heap chunks a worker scans, so the labeling stays with the\nscanner.\n\nPhase 2 waits for every participant's spill, then gives each participant\na contiguous share of the partitions. The owner reads a partition's\nctids from all participants' files, sorts them through an `int8`\ntuplesort on a slice of the worker budget and re-fetches in ctid order,\n`maintenance_io_concurrency` blocks ahead. One writer is alive at a time\non the rest of the budget, so a partition merges only when it outgrows\nit, and then in one merge. `target_segment_count` is bounded at 1024, as\nis the GUC that overrides it.\n\nThere is no single global tuplesort because a parallel tuplesort lets\nonly the leader read the merge; per-partition files cost the same 8\nbytes per row.\n\n## Numbers\n\nFrom the benchmark runner, this head against `4f5f2980c` (the same index\ndefinitions built by the regular path). Ratios are partitioned over\nregular.\n\n| index | build 100k | build 1M | build 20M | size 20M |\n|---|---|---|---|---|\n| `stackoverflow_posts_idx` | 1.23x | 1.25x | 1.59x (4.12 vs 2.60 min) |\n1.05x |\n| `comments_idx` | 1.18x | 1.25x | 1.19x | 0.98x |\n| `users_idx` | 1.41x | 1.27x | 1.33x | 0.85x |\n| `badges_idx` (no `partition_by`) | 1.01x | 1.01x | 0.99x | 1.00x |\n\nThe segment counts are back to the target (48), so the sizes are flat.\nThe build itself is slower, and more so as the heap outgrows\n`shared_buffers`: the drain reads a heap block once per partition that\nhas a row in it, and with a key uncorrelated with heap order that is\nclose to `partitions` passes over the heap.\n\nQueries on the partitioned indexes:\n\n| queries (125 per suite) | 100k | 1M | 20M |\n|---|---|---|---|\n| median ratio | 1.00x | 1.00x | 1.00x |\n| over 1.2x | 1 | 10 | 19 |\n| under 0.8x | 2 | 4 | 7 |\n\n| slowest at 20M | 100k | 1M | 20M |\n|---|---|---|---|\n| `join_aggregate_sort - alternative 2` | 0.96x | 1.41x | 2.03x |\n| `join_aggregate_topk_count - alternative 2` | 1.00x | 1.34x | 1.94x |\n| `regex-and-heap` | 1.32x | 1.42x | 1.93x |\n| `join_aggregate_groupby - alternative 2` | 1.01x | 1.42x | 1.92x |\n| `join_aggregate_multi - alternative 2` | 1.00x | 1.41x | 1.83x |\n| `join_aggregate_count - alternative 2` | 1.00x | 1.39x | 1.78x |\n| `join_aggregate_disjunctive_count - alternative 2` | 0.91x | 1.20x |\n1.76x |\n| `join_top_k-score-desc-high-selectivity` | 1.19x | 1.30x | 1.54x |\n| `join_disjunctive_local_sort - alternative 2` | 0.88x | 1.07x | 1.36x\n|\n| `join_foreign_filter_local_sort` | 1.12x | 1.25x | 1.29x |\n\nThe `- alternative 2` rows are the `enable_range_partitioned_join`\nvariants: a key-aligned segment sends all of its rows to one range of\nthe shuffle. The others touch the heap per row, and a segment ordered by\nkey holds rows from all over the heap. Both are costs of the aligned\nlayout itself, not of the segment count, and stay until M3 uses the\nalignment for pruning and shuffle-free joins.\n\n## Follow-ups\n\n- Spilling the serialized document per partition in phase 1, instead of\nthe ctid, removes the re-fetch (one heap read, one sequential spill\nwrite and read) and the double expression evaluation. That is where most\nof the build gap is.\n\n## Tests\n\n`#[pg_test]`s in `build_parallel.rs`: one segment per partition with and\nwithout leader participation, a partition whose ctids spill through the\ntuplesort, a partition scanned by one participant only, and rows deleted\nby the building transaction (the drain used to drop them).\n\n---------\n\nCo-authored-by: Devdatta Talele <devtalele0@gmail.com>",
+          "timestamp": "2026-08-26T16:55:12-07:00",
+          "tree_id": "0783afbd7c75b1688130c52c5625aa657b806060",
+          "url": "https://github.com/paradedb/paradedb/commit/6966a36e4682c93c00dccd249774ab7e2e8c1702"
+        },
+        "date": 1787789588832,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Primary - tps",
+            "value": 80.776535346597,
+            "unit": "median tps",
+            "extra": "avg tps: 80.43511033986647, max tps: 85.47532000141084, count: 59307"
+          },
+          {
+            "name": "Delete value - Primary - tps",
+            "value": 513.7043456136624,
+            "unit": "median tps",
+            "extra": "avg tps: 554.4889314667655, max tps: 6041.559038109122, count: 59307"
+          },
+          {
+            "name": "Insert value - Primary - tps",
+            "value": 944.9305799542495,
+            "unit": "median tps",
+            "extra": "avg tps: 917.5724742148738, max tps: 1243.642298896318, count: 59307"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Primary - tps",
+            "value": 201.9725968847472,
+            "unit": "median tps",
+            "extra": "avg tps: 200.12547774357853, max tps: 215.44935239066643, count: 59307"
+          },
+          {
+            "name": "Update random values - Primary - tps",
+            "value": 227.26884495047966,
+            "unit": "median tps",
+            "extra": "avg tps: 314.25555144925295, max tps: 1844.193267542369, count: 118614"
+          },
+          {
+            "name": "Vacuum - Primary - tps",
+            "value": 21.351344564117934,
+            "unit": "median tps",
+            "extra": "avg tps: 21.207080870313092, max tps: 34.59907354752743, count: 59307"
           }
         ]
       }
