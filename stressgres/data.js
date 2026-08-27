@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787794563578,
+  "lastUpdate": 1787794570176,
   "repoUrl": "https://github.com/paradedb/paradedb",
   "entries": {
     "pg_search single-server.toml Performance - TPS": [
@@ -300782,6 +300782,282 @@ window.BENCHMARK_DATA = {
             "value": 17.21484375,
             "unit": "median mem",
             "extra": "avg mem: 17.17686181786328, max mem: 17.21484375, count: 55295"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ming.ying.nyc@gmail.com",
+            "name": "Ming",
+            "username": "rebasedming"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0cc4b3cd1b329346523724d359ffde565388a9c2",
+          "message": "feat: Efficiently intersect non-ParadeDB bitmap scans with ParadeDB custom scan (#6088)\n\n# Ticket(s) Closed\n\n- Closes #5702 \n\n## What\n\nToday, a query with a predicate that cannot be answered by the ParadeDB\nindex falls back to a heap filter, which evaluates the predicate against\nthe heap for every tuple emitted by the ParadeDB index. While correct,\nthis is extremely expensive over large result sets.\n\nA better path exists: if that predicate can be answered by another\nindex, and the index can produce a bitmap, we can attach the bitmap scan\nas a child of our custom scan and use the bitmap to cheaply reject\ntuples.\n\nTo illustrate:\n\n```sql\n-- SETUP\nCREATE TABLE items (id bigint, description text, location point);\nINSERT INTO items\nSELECT i, 'blue running shoes ' || i, point(i % 1000, i / 1000)\nFROM generate_series(1, 1000000) i;\nCREATE INDEX items_paradedb ON items USING paradedb (id, description) WITH (key_field = 'id');\nCREATE INDEX items_location ON items USING gist (location);\n```\n\nOn `main`, the following query which uses a GIST predicate touches 6k+\nbuffers:\n\n```sql\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT count(*) FROM items\nWHERE description === 'shoes' AND location <@ circle(point(500, 500), 20);\n\n                                                                                                              QUERY PLAN                                                                                                              \n--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n Custom Scan (ParadeDB Aggregate Scan) on items  (cost=0.00..0.00 rows=1 width=8) (actual time=77.336..77.337 rows=1.00 loops=1)\n   Index: items_paradedb\n   Tantivy Query: {\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"term\":{\"field\":\"description\",\"value\":\"shoes\"}}}},{\"heap_filter\":{\"indexed_query\":\"all\",\"field_filters\":[{\"heap_filter\":\"(location <@ '<(500,500),20>'::circle)\"}]}}]}}\n     Applies to Aggregates: COUNT(*)\n     Aggregate Definition: {\"0\":{\"value_count\":{\"field\":\"ctid\",\"missing\":null}}}\n   Buffers: shared hit=6007\n Planning:\n   Buffers: shared hit=141 read=12\n Planning Time: 8.093 ms\n Execution Time: 77.498 ms\n(10 rows)\n```\n\nOn this branch, we drop down to~300 buffers (20x improvement):\n\n```sql\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT count(*) FROM items\nWHERE description === 'shoes' AND location <@ circle(point(500, 500), 20);\n\n                                                                                                                                   QUERY PLAN                                                                                                                                    \n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n Custom Scan (ParadeDB Aggregate Scan) on items  (cost=40.03..40.03 rows=1 width=8) (actual time=8.226..8.227 rows=1 loops=1)\n   Bitmap Intersection: items_location\n   Bitmap Exact Candidates: 1257\n   Bitmap Lossy Blocks: 0\n   Bitmap Recheck Blocks: 0\n   Index: items_paradedb\n   Tantivy Query: {\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"term\":{\"field\":\"description\",\"value\":\"shoes\"}}}},{\"heap_filter\":{\"indexed_query\":\"all\",\"field_filters\":[],\"recheck_filters\":[{\"heap_filter\":\"(location <@ '<(500,500),20>'::circle)\"}],\"uses_tid_bitmap\":true}}]}}\n     Applies to Aggregates: COUNT(*)\n     Aggregate Definition: {\"0\":{\"value_count\":{\"field\":\"ctid\",\"missing\":null}}}\n   Buffers: shared hit=295 read=25\n   ->  Bitmap Index Scan on items_location  (cost=0.00..39.78 rows=1000 width=0) (actual time=0.109..0.109 rows=1257 loops=1)\n         Index Cond: (location <@ '<(500,500),20>'::circle)\n         Buffers: shared read=25\n Planning:\n   Buffers: shared hit=119 read=26\n Planning Time: 2.676 ms\n Execution Time: 8.299 ms\n(17 rows)\n```\n\n## Why\n\nCustomer request\n\n## How\n\nImplemented:\n\n1. Find heap filters\nThe planner identifies AND-connected predicates that ParadeDB would\notherwise evaluate against heap rows.\n\n2. Require CTID sorting\nBitmap intersection is enabled only when the ParadeDB index is sorted by\nCTID.\n\n3. Choose a PostgreSQL index\nThe planner finds a profitable btree, GIN, or GiST index that covers a\nheap filter.\n\n4. Rewrite the query\nCovered filters are marked as bitmap-backed. Exact matches require\nrechecking only on lossy or recheck pages.\n\n5. Attach the bitmap plan\nThe PostgreSQL bitmap index scan becomes a child of the ParadeDB custom\nscan.\n\n6. Build the TIDBitmap\nThe leader executes the child index scan once and fills a native\nTIDBitmap. For parallel scans, it gets built inside DSA shared memory.\n\n7. Create per-segment cursors\nEach Tantivy segment receives its own forward-only cursor over the\nbitmap. Parallel workers attach to shared cursors.\n\n8. Stream the intersection\nTantivy matches are produced in CTID order and merged with the bitmap.\nMissing CTIDs are rejected immediately; exact matches avoid redundant\nheap-filter evaluation.\n\n## Tests\n\nSee regression test\n\n## Opens\n\n- #6089 BitmapAnd over multiple indexes\n- #6090 BitmapOr for indexable disjunctions\n- #6091 ScalarArrayOpExpr (`= ANY`) matching",
+          "timestamp": "2026-08-26T18:17:42-07:00",
+          "tree_id": "1e2571350f55e9e9ddeb4ad8aa41d913a74c8f26",
+          "url": "https://github.com/paradedb/paradedb/commit/0cc4b3cd1b329346523724d359ffde565388a9c2"
+        },
+        "date": 1787794567507,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Aggregate Scan - Subscriber - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 6.420626144358823, max cpu: 14.035088, count: 55268"
+          },
+          {
+            "name": "Aggregate Scan - Subscriber - mem",
+            "value": 40.9375,
+            "unit": "median mem",
+            "extra": "avg mem: 40.88199574120649, max mem: 41.171875, count: 55268"
+          },
+          {
+            "name": "Delete values - Publisher - cpu",
+            "value": 4.6309695,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.1924822521563105, max cpu: 4.678363, count: 55268"
+          },
+          {
+            "name": "Delete values - Publisher - mem",
+            "value": 17.00390625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.003598587224978, max mem: 17.00390625, count: 55268"
+          },
+          {
+            "name": "Find by ctid - Subscriber - cpu",
+            "value": 23.17721,
+            "unit": "median cpu",
+            "extra": "avg cpu: 23.645063009097782, max cpu: 32.764503, count: 55268"
+          },
+          {
+            "name": "Find by ctid - Subscriber - mem",
+            "value": 36.28515625,
+            "unit": "median mem",
+            "extra": "avg mem: 36.24097557865763, max mem: 36.41015625, count: 55268"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - cpu",
+            "value": 4.644412,
+            "unit": "median cpu",
+            "extra": "avg cpu: 6.153742844280992, max cpu: 14.035088, count: 55268"
+          },
+          {
+            "name": "Grouped Aggregate Scan - Subscriber - mem",
+            "value": 37.24609375,
+            "unit": "median mem",
+            "extra": "avg mem: 37.194092521327896, max mem: 37.45703125, count: 55268"
+          },
+          {
+            "name": "Index Size Info - Subscriber - cpu",
+            "value": 4.628737,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.695792734488735, max cpu: 9.338522, count: 55268"
+          },
+          {
+            "name": "Index Size Info - Subscriber - mem",
+            "value": 21.87890625,
+            "unit": "median mem",
+            "extra": "avg mem: 21.87034455969096, max mem: 21.89453125, count: 55268"
+          },
+          {
+            "name": "Index Size Info - Subscriber - pages",
+            "value": 2992,
+            "unit": "median pages",
+            "extra": "avg pages: 3049.8235145111094, max pages: 5779.0, count: 55268"
+          },
+          {
+            "name": "Index Size Info - Subscriber - relation_size:MB",
+            "value": 23.375,
+            "unit": "median relation_size:MB",
+            "extra": "avg relation_size:MB: 23.82674663118803, max relation_size:MB: 45.1484375, count: 55268"
+          },
+          {
+            "name": "Index Size Info - Subscriber - segment_count",
+            "value": 60,
+            "unit": "median segment_count",
+            "extra": "avg segment_count: 51.022472316711294, max segment_count: 84.0, count: 55268"
+          },
+          {
+            "name": "Insert value A - Publisher - cpu",
+            "value": 4.6669908,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.03916469701189, max cpu: 4.6669908, count: 55268"
+          },
+          {
+            "name": "Insert value A - Publisher - mem",
+            "value": 17.0390625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.002354577920315, max mem: 17.0390625, count: 55268"
+          },
+          {
+            "name": "Insert value B - Publisher - cpu",
+            "value": 0,
+            "unit": "median cpu",
+            "extra": "avg cpu: 0.5469319555619533, max cpu: 4.591105, count: 55268"
+          },
+          {
+            "name": "Insert value B - Publisher - mem",
+            "value": 17.0390625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.03711411044818, max mem: 17.0390625, count: 55268"
+          },
+          {
+            "name": "JoinScan - Subscriber - cpu",
+            "value": 9.261939,
+            "unit": "median cpu",
+            "extra": "avg cpu: 9.495205221619708, max cpu: 18.731707, count: 55268"
+          },
+          {
+            "name": "JoinScan - Subscriber - mem",
+            "value": 58.65234375,
+            "unit": "median mem",
+            "extra": "avg mem: 58.63061327305132, max mem: 59.64453125, count: 55268"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - cpu",
+            "value": 4.6354423,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.552045647630303, max cpu: 14.076246, count: 55268"
+          },
+          {
+            "name": "Key-ordered Top K Base Scan - Subscriber - mem",
+            "value": 36.6328125,
+            "unit": "median mem",
+            "extra": "avg mem: 36.5669160528018, max mem: 36.87109375, count: 55268"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - cpu",
+            "value": 4.653417,
+            "unit": "median cpu",
+            "extra": "avg cpu: 6.588289306834147, max cpu: 14.083129, count: 55268"
+          },
+          {
+            "name": "Normal Base Scan - Subscriber - mem",
+            "value": 36.2578125,
+            "unit": "median mem",
+            "extra": "avg mem: 36.20139868176431, max mem: 36.46484375, count: 55268"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - cpu",
+            "value": 18.443804,
+            "unit": "median cpu",
+            "extra": "avg cpu: 17.32099122730336, max cpu: 32.479458, count: 55268"
+          },
+          {
+            "name": "Parallel Normal Base Scan - Subscriber - mem",
+            "value": 36.35546875,
+            "unit": "median mem",
+            "extra": "avg mem: 36.360466202752946, max mem: 36.6796875, count: 55268"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - cpu",
+            "value": 4.6332045,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.179441683672844, max cpu: 13.919767, count: 55268"
+          },
+          {
+            "name": "Postgres Index Only Scan Fallback - Subscriber - mem",
+            "value": 35.05859375,
+            "unit": "median mem",
+            "extra": "avg mem: 35.01157880690454, max mem: 35.203125, count: 55268"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - cpu",
+            "value": 4.6309695,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.066098247727726, max cpu: 9.402546, count: 55268"
+          },
+          {
+            "name": "Postgres Index Scan Fallback - Subscriber - mem",
+            "value": 34.97265625,
+            "unit": "median mem",
+            "extra": "avg mem: 34.90795504405804, max mem: 35.0546875, count: 55268"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - cpu",
+            "value": 9.217475,
+            "unit": "median cpu",
+            "extra": "avg cpu: 7.824508094207989, max cpu: 14.083129, count: 55268"
+          },
+          {
+            "name": "Postgres Sort over Normal Base Scan - Subscriber - mem",
+            "value": 36.33984375,
+            "unit": "median mem",
+            "extra": "avg mem: 36.27600481969675, max mem: 36.5546875, count: 55268"
+          },
+          {
+            "name": "Rotate join keys - Publisher - cpu",
+            "value": 4.613167,
+            "unit": "median cpu",
+            "extra": "avg cpu: 4.455490180561031, max cpu: 4.6376815, count: 55268"
+          },
+          {
+            "name": "Rotate join keys - Publisher - mem",
+            "value": 17.234375,
+            "unit": "median mem",
+            "extra": "avg mem: 17.23397863591952, max mem: 17.234375, count: 55268"
+          },
+          {
+            "name": "SELECT\n  pid,\n  pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replication_lag,\n  application_name::text,\n  state::text\nFROM pg_stat_replication; - Publisher - replication_lag:MB",
+            "value": 0,
+            "unit": "median replication_lag:MB",
+            "extra": "avg replication_lag:MB: 0.00013511860915045495, max replication_lag:MB: 0.22869110107421875, count: 55268"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - cpu",
+            "value": 4.6332045,
+            "unit": "median cpu",
+            "extra": "avg cpu: 5.130091304105858, max cpu: 13.892908, count: 55268"
+          },
+          {
+            "name": "Unordered Top K Base Scan - Subscriber - mem",
+            "value": 36.09765625,
+            "unit": "median mem",
+            "extra": "avg mem: 36.04398397354708, max mem: 36.28125, count: 55268"
+          },
+          {
+            "name": "Update 1..9 - Publisher - cpu",
+            "value": 4.6489105,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.7406039912213593, max cpu: 4.6669908, count: 55268"
+          },
+          {
+            "name": "Update 1..9 - Publisher - mem",
+            "value": 17.09765625,
+            "unit": "median mem",
+            "extra": "avg mem: 17.067431297835096, max mem: 17.09765625, count: 55268"
+          },
+          {
+            "name": "Update 10,11 - Publisher - cpu",
+            "value": 4.64666,
+            "unit": "median cpu",
+            "extra": "avg cpu: 2.5701518054564034, max cpu: 4.655674, count: 55268"
+          },
+          {
+            "name": "Update 10,11 - Publisher - mem",
+            "value": 17.2578125,
+            "unit": "median mem",
+            "extra": "avg mem: 17.25750024313346, max mem: 17.2578125, count: 55268"
+          },
+          {
+            "name": "Update joined rows - Publisher - cpu",
+            "value": 4.6376815,
+            "unit": "median cpu",
+            "extra": "avg cpu: 3.1587345788909578, max cpu: 4.6489105, count: 55268"
+          },
+          {
+            "name": "Update joined rows - Publisher - mem",
+            "value": 17.09375,
+            "unit": "median mem",
+            "extra": "avg mem: 16.9146720299269, max mem: 17.09375, count: 55268"
           }
         ]
       }
